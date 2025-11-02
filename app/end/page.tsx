@@ -49,7 +49,11 @@ export default function EndPage() {
         )}
 
         <Link href="/">
-          <Button size="lg" className="text-lg px-8 py-6">
+          <Button
+            size="lg"
+            className="text-lg px-8 py-6"
+            onClick={() => localStorage.removeItem("experimentClickData")}
+          >
             トップページに戻る
           </Button>
         </Link>
