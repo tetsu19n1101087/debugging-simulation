@@ -331,6 +331,7 @@ export function PythonCodeViewer() {
   const [activeTab, setActiveTab] = useState(0)
   const [openItem, setOpenItem] = useState<string>("")
   const [clickCounts, setClickCounts] = useState<Record<string, number>>({})
+  const [tabClickCounts, setTabClickCounts] = useState<Record<string, number>>({})
 
   const currentFile = pythonFiles[activeTab]
 
@@ -344,11 +345,22 @@ export function PythonCodeViewer() {
     setOpenItem(value)
   }
 
+  const handleTabClick = (index: number, fileName: string) => {
+    setActiveTab(index)
+    setOpenItem("")
+
+    setTabClickCounts((prev) => ({
+      ...prev,
+      [fileName]: (prev[fileName] || 0) + 1,
+    }))
+  }
+
   useEffect(() => {
-    if (Object.keys(clickCounts).length > 0) {
+    if (Object.keys(clickCounts).length > 0 || Object.keys(tabClickCounts).length > 0) {
       localStorage.setItem("experimentClickData", JSON.stringify(clickCounts))
+      localStorage.setItem("experimentTabClickData", JSON.stringify(tabClickCounts))
     }
-  }, [clickCounts])
+  }, [clickCounts, tabClickCounts])
 
   return (
     <div className="container mx-auto p-6 max-w-5xl">
@@ -365,10 +377,7 @@ export function PythonCodeViewer() {
             {pythonFiles.map((file, index) => (
               <button
                 key={file.fileName}
-                onClick={() => {
-                  setActiveTab(index)
-                  setOpenItem("")
-                }}
+                onClick={() => handleTabClick(index, file.fileName)}
                 className={`px-4 py-2 font-mono text-sm transition-colors ${
                   activeTab === index
                     ? "bg-card text-foreground border-t-2 border-primary"
@@ -381,9 +390,7 @@ export function PythonCodeViewer() {
           </div>
         </div>
 
-        {/* コードエリア */}
         <div className="p-6">
-          {/* インポート文 */}
           {currentFile.imports.length > 0 && (
             <div className="mb-6">
               <PythonSyntaxHighlighter code={currentFile.imports.join("\n")} />
@@ -391,12 +398,10 @@ export function PythonCodeViewer() {
             </div>
           )}
 
-          {/* クラス定義 */}
           {currentFile.classes.map((cls) => (
             <div key={cls.id} className="mb-6">
               <PythonSyntaxHighlighter code={cls.signature} />
 
-              {/* メソッドのアコーディオン */}
               <Accordion
                 type="single"
                 collapsible
@@ -420,7 +425,6 @@ export function PythonCodeViewer() {
             </div>
           ))}
 
-          {/* 関数定義 */}
           {currentFile.functions.map((func) => (
             <div key={func.id} className="mb-6">
               <Accordion type="single" collapsible value={openItem} onValueChange={handleAccordionChange}>
@@ -438,7 +442,6 @@ export function PythonCodeViewer() {
             </div>
           ))}
 
-          {/* フッター */}
           {currentFile.footer.length > 0 && (
             <div className="mt-6">
               <PythonSyntaxHighlighter code={currentFile.footer.join("\n")} />
