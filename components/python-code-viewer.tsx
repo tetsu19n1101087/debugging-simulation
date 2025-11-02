@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Card } from "@/components/ui/card"
 import { PythonSyntaxHighlighter } from "./syntax-highlighter"
@@ -330,8 +330,25 @@ const pythonFiles = [
 export function PythonCodeViewer() {
   const [activeTab, setActiveTab] = useState(0)
   const [openItem, setOpenItem] = useState<string>("")
+  const [clickCounts, setClickCounts] = useState<Record<string, number>>({})
 
   const currentFile = pythonFiles[activeTab]
+
+  const handleAccordionChange = (value: string) => {
+    if (value && value !== openItem) {
+      setClickCounts((prev) => ({
+        ...prev,
+        [value]: (prev[value] || 0) + 1,
+      }))
+    }
+    setOpenItem(value)
+  }
+
+  useEffect(() => {
+    if (Object.keys(clickCounts).length > 0) {
+      localStorage.setItem("experimentClickData", JSON.stringify(clickCounts))
+    }
+  }, [clickCounts])
 
   return (
     <div className="container mx-auto p-6 max-w-5xl">
@@ -380,7 +397,13 @@ export function PythonCodeViewer() {
               <PythonSyntaxHighlighter code={cls.signature} />
 
               {/* メソッドのアコーディオン */}
-              <Accordion type="single" collapsible value={openItem} onValueChange={setOpenItem} className="ml-4">
+              <Accordion
+                type="single"
+                collapsible
+                value={openItem}
+                onValueChange={handleAccordionChange}
+                className="ml-4"
+              >
                 {cls.methods.map((method) => (
                   <AccordionItem key={method.id} value={method.id} className="border-border">
                     <AccordionTrigger className="hover:bg-accent/50 px-3 py-2 rounded text-left">
@@ -400,7 +423,7 @@ export function PythonCodeViewer() {
           {/* 関数定義 */}
           {currentFile.functions.map((func) => (
             <div key={func.id} className="mb-6">
-              <Accordion type="single" collapsible value={openItem} onValueChange={setOpenItem}>
+              <Accordion type="single" collapsible value={openItem} onValueChange={handleAccordionChange}>
                 <AccordionItem value={func.id} className="border-border">
                   <AccordionTrigger className="hover:bg-accent/50 px-3 py-2 rounded text-left font-mono">
                     <span className="text-muted-foreground font-mono text-sm">{func.signature}</span>
