@@ -168,9 +168,14 @@ export function PythonSyntaxHighlighter({
   };
 
   // Ensure whitespace (spaces/tabs) are preserved so code indentation is visible
+  // Wrap in an overflow container so long lines can be scrolled horizontally.
   return (
-    <div className={`font-mono text-sm ${className} whitespace-pre`}>
-      {highlightPython(code)}
+    <div className={`font-mono text-sm ${className}`}>
+      <div className='overflow-x-auto'>
+        {/* inline-block + min-w-max lets the inner content determine width so
+            the outer container can show a horizontal scrollbar when needed */}
+        <div className='inline-block min-w-max'>{highlightPython(code)}</div>
+      </div>
     </div>
   );
 }
