@@ -16,7 +16,7 @@ export function PythonCodeViewer() {
   const [openItem, setOpenItem] = useState<string>('');
   const [clickCounts, setClickCounts] = useState<Record<string, number>>({});
   const [tabClickCounts, setTabClickCounts] = useState<Record<string, number>>(
-    {}
+    () => ({ [pythonFiles[0].fileName]: 1 })
   );
 
   const currentFile = pythonFiles[activeTab];
@@ -90,67 +90,114 @@ export function PythonCodeViewer() {
             </div>
           )}
 
-          {currentFile.classes.map((cls) => (
-            <div key={cls.id} className='mb-6'>
-              <PythonSyntaxHighlighter code={cls.signature} />
-
-              <Accordion
-                type='single'
-                collapsible
-                value={openItem}
-                onValueChange={handleAccordionChange}
-                className='ml-4'
-              >
-                {cls.methods.map((method) => (
-                  <AccordionItem
-                    key={method.id}
-                    value={method.id}
-                    className='border-border'
-                  >
-                    <AccordionTrigger className='hover:bg-accent/50 px-3 py-2 rounded text-left'>
+          {currentFile.fileName === 'main.py' ? (
+            // For main.py: show everything expanded (no accordion)
+            <>
+              {currentFile.classes.map((cls) => (
+                <div key={cls.id} className='mb-6'>
+                  <PythonSyntaxHighlighter code={cls.signature} />
+                  {cls.methods.map((method) => (
+                    <div key={method.id} className='ml-4 mb-4'>
                       <PythonSyntaxHighlighter code={method.signature} />
-                    </AccordionTrigger>
-                    <AccordionContent className='px-3 pb-2'>
-                      <div className='ml-4'>
+                      <div className='ml-4 mt-2'>
                         <PythonSyntaxHighlighter
                           code={method.body.join('\n')}
                         />
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
-          ))}
-
-          {currentFile.functions.map((func) => (
-            <div key={func.id} className='mb-6'>
-              <Accordion
-                type='single'
-                collapsible
-                value={openItem}
-                onValueChange={handleAccordionChange}
-              >
-                <AccordionItem value={func.id} className='border-border'>
-                  <AccordionTrigger className='hover:bg-accent/50 px-3 py-2 rounded text-left font-mono'>
-                    <span className='text-muted-foreground font-mono text-sm'>
-                      {func.signature}
-                    </span>
-                  </AccordionTrigger>
-                  <AccordionContent className='px-3 pb-2'>
-                    <div className='ml-4'>
-                      <PythonSyntaxHighlighter code={func.body.join('\n')} />
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          ))}
+                  ))}
+                </div>
+              ))}
 
-          {currentFile.footer.length > 0 && (
-            <div className='mt-6'>
-              <PythonSyntaxHighlighter code={currentFile.footer.join('\n')} />
-            </div>
+              {currentFile.functions.map((func) => (
+                <div key={func.id} className='mb-6'>
+                  <div className='font-mono text-sm text-muted-foreground'>
+                    {func.signature}
+                  </div>
+                  <div className='ml-4 mt-2'>
+                    <PythonSyntaxHighlighter code={func.body.join('\n')} />
+                  </div>
+                </div>
+              ))}
+
+              {currentFile.footer.length > 0 && (
+                <div className='mt-6'>
+                  <PythonSyntaxHighlighter
+                    code={currentFile.footer.join('\n')}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            // Non-main files keep accordion behavior
+            <>
+              {currentFile.classes.map((cls) => (
+                <div key={cls.id} className='mb-6'>
+                  <PythonSyntaxHighlighter code={cls.signature} />
+
+                  <Accordion
+                    type='single'
+                    collapsible
+                    value={openItem}
+                    onValueChange={handleAccordionChange}
+                    className='ml-4'
+                  >
+                    {cls.methods.map((method) => (
+                      <AccordionItem
+                        key={method.id}
+                        value={method.id}
+                        className='border-border'
+                      >
+                        <AccordionTrigger className='hover:bg-accent/50 px-3 py-2 rounded text-left'>
+                          <PythonSyntaxHighlighter code={method.signature} />
+                        </AccordionTrigger>
+                        <AccordionContent className='px-3 pb-2'>
+                          <div className='ml-4'>
+                            <PythonSyntaxHighlighter
+                              code={method.body.join('\n')}
+                            />
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              ))}
+
+              {currentFile.functions.map((func) => (
+                <div key={func.id} className='mb-6'>
+                  <Accordion
+                    type='single'
+                    collapsible
+                    value={openItem}
+                    onValueChange={handleAccordionChange}
+                  >
+                    <AccordionItem value={func.id} className='border-border'>
+                      <AccordionTrigger className='hover:bg-accent/50 px-3 py-2 rounded text-left font-mono'>
+                        <span className='text-muted-foreground font-mono text-sm'>
+                          {func.signature}
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent className='px-3 pb-2'>
+                        <div className='ml-4'>
+                          <PythonSyntaxHighlighter
+                            code={func.body.join('\n')}
+                          />
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </div>
+              ))}
+
+              {currentFile.footer.length > 0 && (
+                <div className='mt-6'>
+                  <PythonSyntaxHighlighter
+                    code={currentFile.footer.join('\n')}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       </Card>
