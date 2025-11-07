@@ -4,11 +4,19 @@ import type { JSX } from 'react/jsx-runtime';
 interface SyntaxHighlighterProps {
   code: string;
   className?: string;
+  sectionId?: string;
+  onLineSelect?: (sectionId: string, lineNumber: number) => void;
+  selectedLines?: Set<string>;
+  showCheckboxes?: boolean;
 }
 
 export function PythonSyntaxHighlighter({
   code,
   className = '',
+  sectionId,
+  onLineSelect,
+  selectedLines = new Set(),
+  showCheckboxes = true,
 }: SyntaxHighlighterProps) {
   const highlightPython = (code: string) => {
     const lines = code.split('\n');
@@ -16,23 +24,20 @@ export function PythonSyntaxHighlighter({
       const tokens: JSX.Element[] = [];
       let currentIndex = 0;
 
-      // Python keywords
+      const lineId = sectionId ? `${sectionId}-line-${lineIndex}` : '';
+      const isSelected = selectedLines.has(lineId);
+
       const keywords =
         /\b(def|class|if|elif|else|for|while|return|import|from|as|try|except|finally|with|raise|pass|break|continue|and|or|not|in|is|None|True|False|self|lambda|yield|assert|del|global|nonlocal|async|await)\b/g;
 
-      // Strings (single and double quotes, f-strings)
       const strings = /(f?["'])((?:\\.|(?!\1).)*?)\1/g;
 
-      // Comments
       const comments = /#.*/g;
 
-      // Numbers
       const numbers = /\b\d+\.?\d*\b/g;
 
-      // Function/method calls
       const functionCalls = /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
 
-      // Create a list of all matches with their positions
       const matches: Array<{
         start: number;
         end: number;
@@ -40,7 +45,6 @@ export function PythonSyntaxHighlighter({
         text: string;
       }> = [];
 
-      // Find all keywords
       let match;
       while ((match = keywords.exec(line)) !== null) {
         matches.push({
@@ -51,7 +55,6 @@ export function PythonSyntaxHighlighter({
         });
       }
 
-      // Find all strings
       strings.lastIndex = 0;
       while ((match = strings.exec(line)) !== null) {
         matches.push({
@@ -62,7 +65,6 @@ export function PythonSyntaxHighlighter({
         });
       }
 
-      // Find all comments
       comments.lastIndex = 0;
       while ((match = comments.exec(line)) !== null) {
         matches.push({
@@ -73,7 +75,6 @@ export function PythonSyntaxHighlighter({
         });
       }
 
-      // Find all numbers
       numbers.lastIndex = 0;
       while ((match = numbers.exec(line)) !== null) {
         matches.push({
@@ -84,7 +85,6 @@ export function PythonSyntaxHighlighter({
         });
       }
 
-      // Find all function calls
       functionCalls.lastIndex = 0;
       while ((match = functionCalls.exec(line)) !== null) {
         matches.push({
@@ -95,10 +95,8 @@ export function PythonSyntaxHighlighter({
         });
       }
 
-      // Sort matches by start position
       matches.sort((a, b) => a.start - b.start);
 
-      // Remove overlapping matches (keep the first one)
       const filteredMatches: typeof matches = [];
       let lastEnd = -1;
       for (const match of matches) {
@@ -108,9 +106,7 @@ export function PythonSyntaxHighlighter({
         }
       }
 
-      // Build the highlighted line
       filteredMatches.forEach((match, index) => {
-        // Add text before this match
         if (match.start > currentIndex) {
           tokens.push(
             <span
@@ -122,7 +118,6 @@ export function PythonSyntaxHighlighter({
           );
         }
 
-        // Add the highlighted match
         const colorClass =
           match.type === 'keyword'
             ? 'text-purple-400'
@@ -145,7 +140,6 @@ export function PythonSyntaxHighlighter({
         currentIndex = match.end;
       });
 
-      // Add remaining text
       if (currentIndex < line.length) {
         tokens.push(
           <span key={`text-${lineIndex}-end`} className='text-foreground'>
@@ -155,25 +149,52 @@ export function PythonSyntaxHighlighter({
       }
 
       return (
-        // preserve whitespace (indentation) using Tailwind's `whitespace-pre`
-        <div key={lineIndex} className='leading-relaxed whitespace-pre'>
-          {tokens.length > 0 ? (
-            tokens
-          ) : (
-            <span className='text-foreground'>{line}</span>
+        <div
+          key={lineIndex}
+          className={`flex items-center group hover:bg-accent/30 ${
+            isSelected ? 'bg-primary/20' : ''
+          }`}
+        >
+          {onLineSelect && sectionId && showCheckboxes && (
+            <button
+              onClick={() => onLineSelect(sectionId, lineIndex)}
+              className={`shrink-0 w-6 h-6 mr-2 rounded border-2 transition-all ${
+                isSelected
+                  ? 'bg-primary border-primary'
+                  : 'border-muted-foreground/30 hover:border-primary/50'
+              } flex items-center justify-center`}
+              aria-label={`行 ${lineIndex + 1} を選択`}
+            >
+              {isSelected && (
+                <svg
+                  className='w-4 h-4 text-primary-foreground'
+                  fill='none'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth='2'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path d='M5 13l4 4L19 7' />
+                </svg>
+              )}
+            </button>
           )}
+          <div className='leading-relaxed whitespace-pre flex-1'>
+            {tokens.length > 0 ? (
+              tokens
+            ) : (
+              <span className='text-foreground'>{line}</span>
+            )}
+          </div>
         </div>
       );
     });
   };
 
-  // Ensure whitespace (spaces/tabs) are preserved so code indentation is visible
-  // Wrap in an overflow container so long lines can be scrolled horizontally.
   return (
     <div className={`font-mono text-sm ${className}`}>
       <div className='overflow-x-auto'>
-        {/* inline-block + min-w-max lets the inner content determine width so
-            the outer container can show a horizontal scrollbar when needed */}
         <div className='inline-block min-w-max'>{highlightPython(code)}</div>
       </div>
     </div>

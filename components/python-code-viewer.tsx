@@ -18,8 +18,16 @@ export function PythonCodeViewer() {
   const [tabClickCounts, setTabClickCounts] = useState<Record<string, number>>(
     () => ({ [pythonFiles[0].fileName]: 1 })
   );
+  const [selectedLines, setSelectedLines] = useState<Set<string>>(new Set());
 
   const currentFile = pythonFiles[activeTab];
+
+  useEffect(() => {
+    const savedLines = localStorage.getItem('experimentSelectedLines');
+    if (savedLines) {
+      setSelectedLines(new Set(JSON.parse(savedLines)));
+    }
+  }, []);
 
   const handleAccordionChange = (value: string) => {
     if (value && value !== openItem) {
@@ -41,6 +49,19 @@ export function PythonCodeViewer() {
     }));
   };
 
+  const handleLineSelect = (sectionId: string, lineNumber: number) => {
+    const lineId = `${sectionId}-line-${lineNumber}`;
+    setSelectedLines((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(lineId)) {
+        newSet.delete(lineId);
+      } else {
+        newSet.add(lineId);
+      }
+      return newSet;
+    });
+  };
+
   useEffect(() => {
     if (
       Object.keys(clickCounts).length > 0 ||
@@ -53,6 +74,15 @@ export function PythonCodeViewer() {
       );
     }
   }, [clickCounts, tabClickCounts]);
+
+  useEffect(() => {
+    if (selectedLines.size > 0) {
+      localStorage.setItem(
+        'experimentSelectedLines',
+        JSON.stringify(Array.from(selectedLines))
+      );
+    }
+  }, [selectedLines]);
 
   return (
     <div className='container mx-auto p-6 max-w-5xl'>
@@ -85,7 +115,13 @@ export function PythonCodeViewer() {
         <div className='p-6'>
           {currentFile.imports.length > 0 && (
             <div className='mb-6'>
-              <PythonSyntaxHighlighter code={currentFile.imports.join('\n')} />
+              <PythonSyntaxHighlighter
+                code={currentFile.imports.join('\n')}
+                sectionId={`${currentFile.fileName}-imports`}
+                onLineSelect={handleLineSelect}
+                selectedLines={selectedLines}
+                showCheckboxes={false}
+              />
               <div className='mt-4' />
             </div>
           )}
@@ -95,13 +131,28 @@ export function PythonCodeViewer() {
             <>
               {currentFile.classes.map((cls) => (
                 <div key={cls.id} className='mb-6'>
-                  <PythonSyntaxHighlighter code={cls.signature} />
+                  <PythonSyntaxHighlighter
+                    code={cls.signature}
+                    sectionId={`${cls.id}-signature`}
+                    onLineSelect={handleLineSelect}
+                    selectedLines={selectedLines}
+                    showCheckboxes={false}
+                  />
                   {cls.methods.map((method) => (
                     <div key={method.id} className='ml-4 mb-4'>
-                      <PythonSyntaxHighlighter code={method.signature} />
+                      <PythonSyntaxHighlighter
+                        code={method.signature}
+                        sectionId={`${method.id}-signature`}
+                        onLineSelect={handleLineSelect}
+                        selectedLines={selectedLines}
+                        showCheckboxes={false}
+                      />
                       <div className='ml-4 mt-2'>
                         <PythonSyntaxHighlighter
                           code={method.body.join('\n')}
+                          sectionId={method.id}
+                          onLineSelect={handleLineSelect}
+                          selectedLines={selectedLines}
                         />
                       </div>
                     </div>
@@ -115,7 +166,12 @@ export function PythonCodeViewer() {
                     {func.signature}
                   </div>
                   <div className='ml-4 mt-2'>
-                    <PythonSyntaxHighlighter code={func.body.join('\n')} />
+                    <PythonSyntaxHighlighter
+                      code={func.body.join('\n')}
+                      sectionId={func.id}
+                      onLineSelect={handleLineSelect}
+                      selectedLines={selectedLines}
+                    />
                   </div>
                 </div>
               ))}
@@ -124,6 +180,9 @@ export function PythonCodeViewer() {
                 <div className='mt-6'>
                   <PythonSyntaxHighlighter
                     code={currentFile.footer.join('\n')}
+                    sectionId={`${currentFile.fileName}-footer`}
+                    onLineSelect={handleLineSelect}
+                    selectedLines={selectedLines}
                   />
                 </div>
               )}
@@ -133,7 +192,13 @@ export function PythonCodeViewer() {
             <>
               {currentFile.classes.map((cls) => (
                 <div key={cls.id} className='mb-6'>
-                  <PythonSyntaxHighlighter code={cls.signature} />
+                  <PythonSyntaxHighlighter
+                    code={cls.signature}
+                    sectionId={`${cls.id}-signature`}
+                    onLineSelect={handleLineSelect}
+                    selectedLines={selectedLines}
+                    showCheckboxes={false}
+                  />
 
                   <Accordion
                     type='single'
@@ -149,12 +214,21 @@ export function PythonCodeViewer() {
                         className='border-border'
                       >
                         <AccordionTrigger className='hover:bg-accent/50 px-3 py-2 rounded text-left'>
-                          <PythonSyntaxHighlighter code={method.signature} />
+                          <PythonSyntaxHighlighter
+                            code={method.signature}
+                            sectionId={`${method.id}-signature`}
+                            onLineSelect={handleLineSelect}
+                            selectedLines={selectedLines}
+                            showCheckboxes={false}
+                          />
                         </AccordionTrigger>
                         <AccordionContent className='px-3 pb-2'>
                           <div className='ml-4'>
                             <PythonSyntaxHighlighter
                               code={method.body.join('\n')}
+                              sectionId={method.id}
+                              onLineSelect={handleLineSelect}
+                              selectedLines={selectedLines}
                             />
                           </div>
                         </AccordionContent>
@@ -182,6 +256,9 @@ export function PythonCodeViewer() {
                         <div className='ml-4'>
                           <PythonSyntaxHighlighter
                             code={func.body.join('\n')}
+                            sectionId={func.id}
+                            onLineSelect={handleLineSelect}
+                            selectedLines={selectedLines}
                           />
                         </div>
                       </AccordionContent>
@@ -194,6 +271,9 @@ export function PythonCodeViewer() {
                 <div className='mt-6'>
                   <PythonSyntaxHighlighter
                     code={currentFile.footer.join('\n')}
+                    sectionId={`${currentFile.fileName}-footer`}
+                    onLineSelect={handleLineSelect}
+                    selectedLines={selectedLines}
                   />
                 </div>
               )}
