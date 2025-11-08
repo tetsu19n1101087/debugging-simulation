@@ -1,9 +1,47 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { PythonCodeViewer } from '@/components/python-code-viewer';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 
 export default function TestPage() {
+  const router = useRouter();
+  const [isSending, setIsSending] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleEnd = async () => {
+    setIsSending(true);
+    setErrorMsg(null);
+    try {
+      const logsRaw = localStorage.getItem('experimentClickLogs');
+      const linesRaw = localStorage.getItem('experimentSelectedLines');
+      const logs = logsRaw ? JSON.parse(logsRaw) : [];
+      const selectedRows = linesRaw ? JSON.parse(linesRaw) : [];
+
+      const res = await fetch('/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logs, selectedRows }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        // clear local session/logs
+        localStorage.removeItem('experimentClickLogs');
+        localStorage.removeItem('experimentSelectedLines');
+        localStorage.removeItem('experimentSessionId');
+        router.push('/end');
+      } else {
+        setErrorMsg(json.error ?? '送信に失敗しました');
+      }
+    } catch (err: any) {
+      setErrorMsg(String(err));
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <main className='min-h-screen bg-background'>
       <div className='container mx-auto max-w-5xl px-6 py-8'>
@@ -27,12 +65,18 @@ export default function TestPage() {
       </div>
       <PythonCodeViewer />
       <div className='container mx-auto max-w-5xl px-6 pb-12'>
-        <div className='flex justify-center'>
-          <Link href='/end'>
-            <Button size='lg' className='text-lg px-8 py-6'>
-              実験を終了する
+        <div className='flex flex-col items-center gap-4'>
+          <div className='flex justify-center'>
+            <Button
+              size='lg'
+              className='text-lg px-8 py-6'
+              onClick={handleEnd}
+              disabled={isSending}
+            >
+              {isSending ? '送信中…' : '実験を終了する'}
             </Button>
-          </Link>
+          </div>
+          {errorMsg && <div className='text-sm text-red-500'>{errorMsg}</div>}
         </div>
       </div>
     </main>
