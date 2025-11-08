@@ -11,13 +11,18 @@ import { Card } from '@/components/ui/card';
 import { PythonSyntaxHighlighter } from './syntax-highlighter';
 import pythonFiles from './python-files';
 
+type ClickLog = {
+  type: string;
+  location: string;
+  timestamp: number;
+  sessionId: string;
+};
+
 export function PythonCodeViewer() {
   const [activeTab, setActiveTab] = useState(0);
   const [openItem, setOpenItem] = useState<string>('');
-  const [clickCounts, setClickCounts] = useState<Record<string, number>>({});
-  const [tabClickCounts, setTabClickCounts] = useState<Record<string, number>>(
-    () => ({ [pythonFiles[0].fileName]: 1 })
-  );
+  const [clickLogs, setClickLogs] = useState<ClickLog[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [selectedLines, setSelectedLines] = useState<Set<string>>(new Set());
 
   const currentFile = pythonFiles[activeTab];
@@ -27,14 +32,63 @@ export function PythonCodeViewer() {
     if (savedLines) {
       setSelectedLines(new Set(JSON.parse(savedLines)));
     }
+    const savedLogs = localStorage.getItem('experimentClickLogs');
+    if (savedLogs) {
+      try {
+        const parsed: ClickLog[] = JSON.parse(savedLogs);
+        if (Array.isArray(parsed)) setClickLogs(parsed);
+      } catch {
+        // ignore parse error
+      }
+    }
+    const savedSession = localStorage.getItem('experimentSessionId');
+    if (savedSession) {
+      setSessionId(savedSession);
+    }
   }, []);
+
+  const addClickLog = (type: string, location: string) => {
+    const sid = ensureSessionId() as string;
+    const entry: ClickLog = {
+      type,
+      location,
+      timestamp: Date.now(),
+      sessionId: sid,
+    };
+    setClickLogs((prev) => [...prev, entry]);
+  };
+
+  const generateSessionId = () => {
+    if (
+      typeof crypto !== 'undefined' &&
+      typeof (crypto as any).randomUUID === 'function'
+    ) {
+      return (crypto as any).randomUUID();
+    }
+    // fallback
+    return `${Date.now().toString(36)}-${Math.random()
+      .toString(36)
+      .slice(2, 10)}`;
+  };
+
+  const ensureSessionId = () => {
+    if (!sessionId) {
+      const sid = generateSessionId();
+      try {
+        localStorage.setItem('experimentSessionId', sid);
+      } catch {
+        // ignore
+      }
+      setSessionId(sid);
+      return sid;
+    }
+    return sessionId;
+  };
 
   const handleAccordionChange = (value: string) => {
     if (value && value !== openItem) {
-      setClickCounts((prev) => ({
-        ...prev,
-        [value]: (prev[value] || 0) + 1,
-      }));
+      // アコーディオンを開いた時のみログを記録
+      addClickLog('accordion', value);
     }
     setOpenItem(value);
   };
@@ -42,11 +96,7 @@ export function PythonCodeViewer() {
   const handleTabClick = (index: number, fileName: string) => {
     setActiveTab(index);
     setOpenItem('');
-
-    setTabClickCounts((prev) => ({
-      ...prev,
-      [fileName]: (prev[fileName] || 0) + 1,
-    }));
+    addClickLog('tab', fileName);
   };
 
   const handleLineSelect = (sectionId: string, lineNumber: number) => {
@@ -63,17 +113,10 @@ export function PythonCodeViewer() {
   };
 
   useEffect(() => {
-    if (
-      Object.keys(clickCounts).length > 0 ||
-      Object.keys(tabClickCounts).length > 0
-    ) {
-      localStorage.setItem('experimentClickData', JSON.stringify(clickCounts));
-      localStorage.setItem(
-        'experimentTabClickData',
-        JSON.stringify(tabClickCounts)
-      );
+    if (clickLogs.length > 0) {
+      localStorage.setItem('experimentClickLogs', JSON.stringify(clickLogs));
     }
-  }, [clickCounts, tabClickCounts]);
+  }, [clickLogs]);
 
   useEffect(() => {
     if (selectedLines.size > 0) {

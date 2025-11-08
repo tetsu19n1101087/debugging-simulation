@@ -2,23 +2,29 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function EndPage() {
-  const [clickData, setClickData] = useState<Record<string, number>>({});
-  const [tabClickData, setTabClickData] = useState<Record<string, number>>({});
+  type ClickLog = {
+    type: string;
+    location: string;
+    timestamp: number;
+    sessionId?: string;
+  };
+  const [clickLogs, setClickLogs] = useState<ClickLog[]>([]);
   const [selectedLines, setSelectedLines] = useState<string[]>([]);
 
   useEffect(() => {
-    const data = localStorage.getItem('experimentClickData');
-    if (data) {
-      setClickData(JSON.parse(data));
-    }
-
-    const tabData = localStorage.getItem('experimentTabClickData');
-    if (tabData) {
-      setTabClickData(JSON.parse(tabData));
+    const logs = localStorage.getItem('experimentClickLogs');
+    if (logs) {
+      try {
+        const parsed: ClickLog[] = JSON.parse(logs);
+        if (Array.isArray(parsed)) setClickLogs(parsed);
+      } catch {
+        // ignore parse error
+      }
     }
 
     const linesData = localStorage.getItem('experimentSelectedLines');
@@ -51,9 +57,37 @@ export default function EndPage() {
   };
 
   const handleReturnToTop = () => {
-    localStorage.removeItem('experimentClickData');
-    localStorage.removeItem('experimentTabClickData');
+    localStorage.removeItem('experimentClickLogs');
     localStorage.removeItem('experimentSelectedLines');
+    localStorage.removeItem('experimentSessionId');
+  };
+
+  const router = useRouter();
+  const [isSending, setIsSending] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSendAndReturn = async () => {
+    setIsSending(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch('/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logs: clickLogs, selectedRows: selectedLines }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        // clear local storage and session
+        handleReturnToTop();
+        router.push('/');
+      } else {
+        setErrorMsg(json.error ?? '送信に失敗しました');
+      }
+    } catch (err: any) {
+      setErrorMsg(String(err));
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -84,65 +118,58 @@ export default function EndPage() {
           </Card>
         )}
 
-        {Object.keys(tabClickData).length > 0 && (
+        {clickLogs.length > 0 && (
           <Card className='p-6 text-left'>
-            <h2 className='text-2xl font-semibold mb-4'>
-              ファイルごとの開いた回数
-            </h2>
+            <h2 className='text-2xl font-semibold mb-4'>操作ログ</h2>
             <div className='space-y-2'>
-              {Object.entries(tabClickData)
-                .sort(([, a], [, b]) => b - a)
-                .map(([fileName, count]) => (
+              {clickLogs
+                .slice()
+                .reverse()
+                .map((entry, idx) => (
                   <div
-                    key={fileName}
-                    className='flex justify-between items-center py-2 border-b border-border last:border-0'
+                    key={`${entry.type}-${entry.location}-${entry.timestamp}-${idx}`}
+                    className='py-2 px-3 border-l-4 border-primary bg-primary/5'
                   >
-                    <span className='text-sm text-muted-foreground font-mono'>
-                      {fileName}
-                    </span>
-                    <span className='text-lg font-semibold text-foreground'>
-                      {count}回
-                    </span>
+                    <div className='flex justify-between items-center'>
+                      <div>
+                        <div className='text-sm text-muted-foreground font-mono'>
+                          種類: {entry.type}
+                        </div>
+                        <div className='text-sm text-foreground font-mono'>
+                          場所: {entry.location}
+                        </div>
+                      </div>
+                      <div className='text-sm text-muted-foreground'>
+                        {new Date(entry.timestamp).toLocaleString()}
+                      </div>
+                    </div>
                   </div>
                 ))}
             </div>
           </Card>
         )}
 
-        {Object.keys(clickData).length > 0 && (
-          <Card className='p-6 text-left'>
-            <h2 className='text-2xl font-semibold mb-4'>
-              セクションごとの開いた回数
-            </h2>
-            <div className='space-y-2'>
-              {Object.entries(clickData)
-                .sort(([, a], [, b]) => b - a)
-                .map(([id, count]) => (
-                  <div
-                    key={id}
-                    className='flex justify-between items-center py-2 border-b border-border last:border-0'
-                  >
-                    <span className='text-sm text-muted-foreground font-mono'>
-                      {getSectionName(id)}
-                    </span>
-                    <span className='text-lg font-semibold text-foreground'>
-                      {count}回
-                    </span>
-                  </div>
-                ))}
-            </div>
-          </Card>
-        )}
-
-        <Link href='/'>
+        <div className='flex items-center justify-center gap-4'>
           <Button
             size='lg'
             className='text-lg px-8 py-6'
-            onClick={handleReturnToTop}
+            onClick={handleSendAndReturn}
+            disabled={isSending || clickLogs.length === 0}
           >
-            トップページに戻る
+            {isSending ? '送信中...' : '結果を送信してトップへ'}
           </Button>
-        </Link>
+          <Link href='/'>
+            <Button
+              size='lg'
+              variant='ghost'
+              className='text-lg px-8 py-6'
+              onClick={handleReturnToTop}
+            >
+              送信せずに戻る
+            </Button>
+          </Link>
+        </div>
+        {errorMsg && <div className='text-red-500 mt-3'>{errorMsg}</div>}
       </div>
     </main>
   );
