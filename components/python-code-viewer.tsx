@@ -34,10 +34,14 @@ export function PythonCodeViewer() {
       setSelectedLines(new Set(JSON.parse(savedLines)));
     }
     const savedLogs = localStorage.getItem('experimentClickLogs');
+    let parsedLogs: ClickLog[] | null = null;
     if (savedLogs) {
       try {
         const parsed: ClickLog[] = JSON.parse(savedLogs);
-        if (Array.isArray(parsed)) setClickLogs(parsed);
+        if (Array.isArray(parsed)) {
+          parsedLogs = parsed;
+          setClickLogs(parsed);
+        }
       } catch {
         // ignore parse error
       }
@@ -45,6 +49,12 @@ export function PythonCodeViewer() {
     const savedSession = localStorage.getItem('experimentSessionId');
     if (savedSession) {
       setSessionId(savedSession);
+    }
+
+    // If there are no saved logs, add an initial log for the default tab (index 0)
+    if (!parsedLogs || parsedLogs.length === 0) {
+      // addClickLog is safe to call here because effects run after render
+      addClickLog('file', pythonFiles[0].fileName);
     }
   }, []);
 
@@ -102,15 +112,19 @@ export function PythonCodeViewer() {
 
   const handleLineSelect = (sectionId: string, lineNumber: number) => {
     const lineId = `${sectionId}-line-${lineNumber}`;
+    const isChecked = selectedLines.has(lineId);
     setSelectedLines((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(lineId)) {
+      if (isChecked) {
         newSet.delete(lineId);
       } else {
         newSet.add(lineId);
       }
       return newSet;
     });
+
+    // ログを追加（選択時は check、解除時は uncheck）
+    addClickLog(isChecked ? 'uncheck' : 'check', lineId);
   };
 
   useEffect(() => {
