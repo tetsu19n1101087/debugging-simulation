@@ -144,7 +144,7 @@ export function PythonCodeViewer() {
 
   return (
     <div className='container mx-auto p-6 max-w-5xl'>
-      <Card className='bg-card border-border'>
+      <Card className='bg-card border-border pt-0'>
         <div className='border-b border-border bg-muted/30'>
           <div className='flex items-center gap-2 px-4 py-2'>
             <div className='flex gap-1.5'>
