@@ -10,7 +10,7 @@ export default function TaskSelectPage() {
     {
       id: 'database',
       title: 'データベース接続の不具合',
-      desc: 'DB接続／クエリに関する問題を特定してください。',
+      desc: 'DB接続 / クエリに関する問題を特定してください。',
     },
     {
       id: 'ui',

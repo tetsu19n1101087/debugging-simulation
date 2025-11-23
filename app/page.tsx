@@ -9,7 +9,7 @@ export default function Home() {
         <p className="text-lg text-muted-foreground max-w-md">
           この実験では、Pythonコードを読んでいただき、デバッグ時の行動を調査します。
         </p>
-        <Link href="/test">
+        <Link href="/training">
           <Button size="lg" className="text-lg px-8 py-6">
             実験を開始する
           </Button>
