@@ -11,7 +11,7 @@ export default function Home() {
         </p>
         <Link href="/training">
           <Button size="lg" className="text-lg px-8 py-6">
-            実験を開始する
+            トレーニングを開始する
           </Button>
         </Link>
       </div>
