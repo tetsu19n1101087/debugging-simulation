@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { TrainingCodeViewer } from '@/components/training-code-viewer';
+import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 
 export default function TrainingPage() {
@@ -51,12 +52,9 @@ export default function TrainingPage() {
       <div className='container mx-auto max-w-5xl px-6 pb-12'>
         <div className='flex flex-col items-center gap-4'>
           <div className='flex justify-center'>
-            <Link
-              href='/task-select'
-              className='inline-block text-center text-lg px-8 py-6 rounded-md bg-primary text-primary-foreground'
-            >
-              トレーニングを終了する
-            </Link>
+            <Button asChild size='lg' className='text-lg px-8 py-6'>
+              <Link href='/task-select'>トレーニングを終了する</Link>
+            </Button>
           </div>
         </div>
       </div>
