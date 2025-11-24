@@ -1,43 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import { PythonCodeViewer } from '@/components/python-code-viewer';
 import { Button } from '@/components/ui/button';
-import { AlertCircle } from 'lucide-react';
+import TaskHeaderClient from './TaskHeaderClient';
 
 export default function TestPage() {
   const router = useRouter();
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-  const taskParam = searchParams?.get('task') ?? 'default';
-
-  const taskMap: Record<string, { title: string; lead: string; note: string }> =
-    {
-      library: {
-        title: 'デバッグタスク — 図書館管理',
-        lead: '以下のPythonコードには、図書館管理システムに関するエラーが含まれています。コードを確認し、エラーの原因を特定してください。',
-        note: '各ファイルのタブを切り替えたり、クラスやメソッドを展開して調査することができます。',
-      },
-      database: {
-        title: 'デバッグタスク — データベース',
-        lead: '以下のPythonコードには、データベース接続やクエリ実行に関する問題が含まれています。接続周り・SQL・例外処理を中心に調査してください。',
-        note: 'テーブルやクエリの実装を確認し、再現手順を推定してください。',
-      },
-      ui: {
-        title: 'デバッグタスク — UI 表示',
-        lead: '以下のPythonコードと成果物にはフロントエンド表示の不具合に繋がる挙動があります。表示ロジックやデータ整形を確認してください。',
-        note: 'スタイルや出力内容に着目して問題箇所を特定してください。',
-      },
-      default: {
-        title: 'デバッグタスク',
-        lead: '以下のPythonコードには、図書館管理システムに関するエラーが含まれています。コードを確認し、エラーの原因を特定してください。',
-        note: '各ファイルのタブを切り替えたり、クラスやメソッドを展開して調査することができます。',
-      },
-    };
-
-  const { title, lead, note } = taskMap[taskParam] ?? taskMap.default;
 
   const handleEnd = async () => {
     setIsSending(true);
@@ -72,24 +44,24 @@ export default function TestPage() {
 
   return (
     <main className='min-h-screen bg-background'>
-      <div className='container mx-auto max-w-5xl px-6 py-8'>
-        <div className='bg-amber-950/50 border border-amber-700/50 rounded-lg p-6 mb-6'>
-          <div className='flex items-start gap-4'>
-            <AlertCircle className='w-6 h-6 text-amber-500 shrink-0 mt-1' />
-            <div className='flex-1'>
-              <h2 className='text-xl font-semibold text-amber-400 mb-2'>
-                {title}
-              </h2>
-              <p className='text-amber-100/90 leading-relaxed mb-3'>
-                {lead}
-              </p>
-              <p className='text-amber-100/80 text-sm'>
-                {note}
-              </p>
+      <Suspense
+        fallback={
+          <div className='container mx-auto max-w-5xl px-6 py-8'>
+            <div className='bg-amber-950/50 border border-amber-700/50 rounded-lg p-6 mb-6'>
+              <div className='flex items-start gap-4'>
+                <div className='w-6 h-6 mt-1 rounded-full bg-amber-500/60' />
+                <div className='flex-1'>
+                  <div className='h-6 w-3/5 bg-amber-400/30 rounded mb-2' />
+                  <div className='h-4 w-4/5 bg-amber-100/10 rounded mb-2' />
+                  <div className='h-3 w-1/2 bg-amber-100/8 rounded' />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        }
+      >
+        <TaskHeaderClient />
+      </Suspense>
       <PythonCodeViewer />
       <div className='container mx-auto max-w-5xl px-6 pb-12'>
         <div className='flex flex-col items-center gap-4'>
