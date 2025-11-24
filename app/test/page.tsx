@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { PythonCodeViewer } from '@/components/python-code-viewer';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import TaskHeaderClient from './TaskHeaderClient';
 
 export default function TestPage() {
   const router = useRouter();
+  const [task, setTask] = useState<string>('default');
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -23,7 +24,7 @@ export default function TestPage() {
       const res = await fetch('/api/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ logs, selectedRows }),
+        body: JSON.stringify({ logs, selectedRows, task }),
       });
       const json = await res.json();
       if (json.success) {
@@ -60,7 +61,7 @@ export default function TestPage() {
           </div>
         }
       >
-        <TaskHeaderClient />
+        <TaskHeaderClient onTaskParamAction={setTask} />
       </Suspense>
       <PythonCodeViewer />
       <div className='container mx-auto max-w-5xl px-6 pb-12'>

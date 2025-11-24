@@ -1,11 +1,20 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
 
-export default function TaskHeaderClient() {
+export default function TaskHeaderClient({
+  onTaskParamAction,
+}: {
+  onTaskParamAction?: (task: string) => void;
+}) {
   const searchParams = useSearchParams();
   const taskParam = searchParams?.get('task') ?? 'default';
+
+  useEffect(() => {
+    if (onTaskParamAction) onTaskParamAction(taskParam);
+  }, [taskParam, onTaskParamAction]);
 
   const taskMap: Record<string, { title: string; lead: string; note: string }> =
     {

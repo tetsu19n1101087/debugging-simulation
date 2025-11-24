@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { logs, selectedRows } = body || {};
+    const { logs, selectedRows, task } = body || {};
 
     if (!Array.isArray(logs) || logs.length === 0) {
       return NextResponse.json(
@@ -53,7 +53,11 @@ export async function POST(req: Request) {
         const { error: upsertError } = await supabase
           .from('selected_rows')
           .upsert(
-            { session_id: sessionId, selected_rows: selectedRows },
+            {
+              session_id: sessionId,
+              selected_rows: selectedRows,
+              task: task ?? null,
+            },
             { onConflict: 'session_id' }
           );
 
