@@ -193,7 +193,16 @@ export function PythonSyntaxHighlighter({
   };
 
   return (
-    <div className={`font-mono text-sm ${className}`}>
+    <div
+      className={`font-mono text-sm ${className}`}
+      // リガチャ（例: '==' が一つに見える）を無効化して文字間を少し広げる
+      style={{
+        fontVariantLigatures: 'none',
+        WebkitFontFeatureSettings: '"liga" 0',
+        fontFeatureSettings: '"liga" 0',
+        letterSpacing: '0.02em',
+      }}
+    >
       <div className='overflow-x-auto'>
         <div className='inline-block min-w-max'>{highlightPython(code)}</div>
       </div>

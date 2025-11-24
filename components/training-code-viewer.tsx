@@ -9,14 +9,14 @@ import {
 } from '@/components/ui/accordion';
 import { Card } from '@/components/ui/card';
 import { PythonSyntaxHighlighter } from './syntax-highlighter';
-import pythonFiles from './python-files';
+import { trainingPythonFiles } from './python-files';
 
 export function TrainingCodeViewer() {
   const [activeTab, setActiveTab] = useState(0);
   const [openItem, setOpenItem] = useState<string>('');
   const [selectedLines, setSelectedLines] = useState<Set<string>>(new Set());
 
-  const currentFile = pythonFiles[activeTab];
+  const currentFile = (trainingPythonFiles as any)[activeTab];
 
   const handleAccordionChange = (value: string) => {
     setOpenItem(value);
@@ -49,7 +49,7 @@ export function TrainingCodeViewer() {
             </div>
           </div>
           <div className='flex gap-1 px-2'>
-            {pythonFiles.map((file, index) => (
+            {trainingPythonFiles.map((file, index) => (
               <button
                 key={file.fileName}
                 onClick={() => handleTabClick(index)}
@@ -81,7 +81,7 @@ export function TrainingCodeViewer() {
 
           {currentFile.fileName === 'main.py' ? (
             <>
-              {currentFile.classes.map((cls) => (
+              {currentFile.classes.map((cls: any) => (
                 <div key={cls.id} className='mb-6'>
                   <PythonSyntaxHighlighter
                     code={cls.signature}
@@ -90,7 +90,7 @@ export function TrainingCodeViewer() {
                     selectedLines={selectedLines}
                     showCheckboxes={false}
                   />
-                  {cls.methods.map((method) => (
+                  {cls.methods.map((method: any) => (
                     <div key={method.id} className='ml-4 mb-4'>
                       <PythonSyntaxHighlighter
                         code={method.signature}
@@ -112,11 +112,15 @@ export function TrainingCodeViewer() {
                 </div>
               ))}
 
-              {currentFile.functions.map((func) => (
+              {currentFile.functions.map((func: any) => (
                 <div key={func.id} className='mb-6'>
-                  <div className='font-mono text-sm text-muted-foreground'>
-                    {func.signature}
-                  </div>
+                  <PythonSyntaxHighlighter
+                    code={func.signature}
+                    sectionId={`${func.name}-signature`}
+                    onLineSelect={handleLineSelect}
+                    selectedLines={selectedLines}
+                    showCheckboxes={false}
+                  />
                   <div className='ml-4 mt-2'>
                     <PythonSyntaxHighlighter
                       code={func.body.join('\n')}
@@ -141,7 +145,7 @@ export function TrainingCodeViewer() {
             </>
           ) : (
             <>
-              {currentFile.classes.map((cls) => (
+              {currentFile.classes.map((cls: any) => (
                 <div key={cls.id} className='mb-6'>
                   <PythonSyntaxHighlighter
                     code={cls.signature}
@@ -158,7 +162,7 @@ export function TrainingCodeViewer() {
                     onValueChange={handleAccordionChange}
                     className='ml-4'
                   >
-                    {cls.methods.map((method) => (
+                    {cls.methods.map((method: any) => (
                       <AccordionItem
                         key={method.id}
                         value={`${cls.name}.${method.name}`}
@@ -189,7 +193,7 @@ export function TrainingCodeViewer() {
                 </div>
               ))}
 
-              {currentFile.functions.map((func) => (
+              {currentFile.functions.map((func: any) => (
                 <div key={func.id} className='mb-6'>
                   <Accordion
                     type='single'
@@ -202,9 +206,13 @@ export function TrainingCodeViewer() {
                       className='border-border'
                     >
                       <AccordionTrigger className='hover:bg-accent/50 px-3 py-2 rounded text-left font-mono'>
-                        <span className='text-muted-foreground font-mono text-sm'>
-                          {func.signature}
-                        </span>
+                        <PythonSyntaxHighlighter
+                          code={func.signature}
+                          sectionId={`${func.name}-signature`}
+                          onLineSelect={handleLineSelect}
+                          selectedLines={selectedLines}
+                          showCheckboxes={false}
+                        />
                       </AccordionTrigger>
                       <AccordionContent className='px-3 pb-2'>
                         <div className='ml-4'>

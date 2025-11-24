@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/accordion';
 import { Card } from '@/components/ui/card';
 import { PythonSyntaxHighlighter } from './syntax-highlighter';
-import pythonFiles from './python-files';
+import { pythonFiles } from './python-files';
 
 type ClickLog = {
   type: string;
@@ -220,9 +220,13 @@ export function PythonCodeViewer() {
 
               {currentFile.functions.map((func) => (
                 <div key={func.id} className='mb-6'>
-                  <div className='font-mono text-sm text-muted-foreground'>
-                    {func.signature}
-                  </div>
+                  <PythonSyntaxHighlighter
+                    code={func.signature}
+                    sectionId={`${func.name}-signature`}
+                    onLineSelect={handleLineSelect}
+                    selectedLines={selectedLines}
+                    showCheckboxes={false}
+                  />
                   <div className='ml-4 mt-2'>
                     <PythonSyntaxHighlighter
                       code={func.body.join('\n')}
@@ -309,9 +313,13 @@ export function PythonCodeViewer() {
                       className='border-border'
                     >
                       <AccordionTrigger className='hover:bg-accent/50 px-3 py-2 rounded text-left font-mono'>
-                        <span className='text-muted-foreground font-mono text-sm'>
-                          {func.signature}
-                        </span>
+                        <PythonSyntaxHighlighter
+                          code={func.signature}
+                          sectionId={`${func.name}-signature`}
+                          onLineSelect={handleLineSelect}
+                          selectedLines={selectedLines}
+                          showCheckboxes={false}
+                        />
                       </AccordionTrigger>
                       <AccordionContent className='px-3 pb-2'>
                         <div className='ml-4'>

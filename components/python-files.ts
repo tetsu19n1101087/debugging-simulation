@@ -324,4 +324,44 @@ export const pythonFiles = [
   },
 ];
 
+export const trainingPythonFiles = [
+  {
+    fileName: 'main.py',
+    imports: ['from fizzbuzz import fizzbuzz'],
+    classes: [],
+    functions: [
+      {
+        id: 'training-main-function-1',
+        name: 'main',
+        signature: '# メインの実行コード (FizzBuzz)',
+        body: ['for i in range(1, 16):', '    print(fizzbuzz(i))'],
+      },
+    ],
+    footer: [],
+  },
+  {
+    fileName: 'fizzbuzz.py',
+    imports: [],
+    classes: [],
+    functions: [
+      {
+        id: 'fizzbuzz-function-1',
+        name: 'fizzbuzz',
+        signature: 'def fizzbuzz(n):',
+        body: [
+          '    if n % 15 == 0:',
+          '        return "FizzBuzz"',
+          '    elif n % 3 == 0:',
+          '        return "Fizz"',
+          '    elif n % 5 = 0:    # バグ："== " が "=" になっている',
+          '        return "Buzz"',
+          '    else:',
+          '        return str(n)',
+        ],
+      },
+    ],
+    footer: [],
+  },
+];
+
 export default pythonFiles;
