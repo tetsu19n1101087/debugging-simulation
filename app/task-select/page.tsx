@@ -1,44 +1,76 @@
-import Link from 'next/link';
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 export default function TaskSelectPage() {
+  const router = useRouter();
+  const [selectedTask, setSelectedTask] = useState('');
+
   const tasks = [
     {
       id: 'library',
       title: '図書館管理システムのバグ',
-      desc: '図書館管理に関するロジックの不具合を見つけてください。',
     },
     {
       id: 'database',
       title: 'データベース接続の不具合',
-      desc: 'DB接続 / クエリに関する問題を特定してください。',
     },
     {
       id: 'ui',
       title: 'フロントエンド表示の不具合',
-      desc: 'UI 表示やスタイルに関する問題を調査してください。',
     },
   ];
+
+  const handleTaskChange = (taskId: string) => {
+    setSelectedTask(taskId);
+  };
+
+  const handleStart = () => {
+    if (selectedTask) {
+      router.push(`/test?task=${encodeURIComponent(selectedTask)}`);
+    }
+  };
 
   return (
     <main className='min-h-screen bg-background'>
       <div className='container mx-auto max-w-5xl px-6 py-8'>
         <div className='bg-card border-border rounded-lg p-6 mb-6'>
           <h1 className='text-2xl font-semibold mb-4'>タスク選択</h1>
-          <p className='text-sm text-muted-foreground mb-4'>
-            実行したいデバッグタスクを選んでください。選択すると該当タスクでテストページが開きます。
+          <p className='text-sm text-muted-foreground mb-6'>
+            実行したいデバッグタスクを選んでください。
           </p>
 
-          <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-            {tasks.map((t) => (
-              <Link
-                key={t.id}
-                href={`/test?task=${encodeURIComponent(t.id)}`}
-                className='block rounded-lg border border-border p-4 hover:shadow-md'
-              >
-                <h2 className='font-medium mb-1'>{t.title}</h2>
-                <p className='text-sm text-muted-foreground'>{t.desc}</p>
-              </Link>
-            ))}
+          <div className='max-w-md'>
+            <label
+              htmlFor='task-select'
+              className='block text-sm font-medium mb-2'
+            >
+              タスクを選択:
+            </label>
+            <select
+              id='task-select'
+              value={selectedTask}
+              onChange={(e) => handleTaskChange(e.target.value)}
+              className='w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary'
+            >
+              <option value=''>-- タスクを選んでください --</option>
+              {tasks.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.title}
+                </option>
+              ))}
+            </select>
+
+            <Button
+              onClick={handleStart}
+              disabled={!selectedTask}
+              className='w-full mt-4'
+              size='lg'
+            >
+              開始する
+            </Button>
           </div>
         </div>
       </div>
