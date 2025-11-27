@@ -10,16 +10,16 @@ export default function TaskSelectPage() {
 
   const tasks = [
     {
-      id: 'library',
-      title: '図書館管理システムのバグ',
+      id: 'duplicate',
+      title: 'エラー1：本の重複',
     },
     {
-      id: 'database',
-      title: 'データベース接続の不具合',
+      id: 'exceed',
+      title: 'エラー2：貸出上限超過',
     },
     {
-      id: 'ui',
-      title: 'フロントエンド表示の不具合',
+      id: 'return',
+      title: 'エラー3：返却の誤処理',
     },
   ];
 
@@ -39,7 +39,7 @@ export default function TaskSelectPage() {
         <div className='bg-card border-border rounded-lg p-6 mb-6'>
           <h1 className='text-2xl font-semibold mb-4'>タスク選択</h1>
           <p className='text-sm text-muted-foreground mb-6'>
-            実行したいデバッグタスクを選んでください。
+            参加者は実験者の指示に従って、タスクを選択してください。
           </p>
 
           <div className='max-w-md'>

@@ -45,10 +45,18 @@ export default function TestPage() {
 
   return (
     <main className='min-h-screen bg-background'>
+      <div className='container mx-auto max-w-5xl px-6 mt-8'>
+        <p className='text-base mb-2'>
+          以下のソースコードは、図書館における蔵書と利用者を管理し、本の貸出・返却を取り扱うための処理を記述したものです。
+        </p>
+        <p className='text-base'>
+          エラーの説明を読んで、原因となるソースコード内のバグを見つけてください。
+        </p>
+      </div>
       <Suspense
         fallback={
           <div className='container mx-auto max-w-5xl px-6 py-8'>
-            <div className='bg-amber-950/50 border border-amber-700/50 rounded-lg p-6 mb-6'>
+            <div className='bg-amber-950/50 border border-amber-700/50 rounded-lg p-6'>
               <div className='flex items-start gap-4'>
                 <div className='w-6 h-6 mt-1 rounded-full bg-amber-500/60' />
                 <div className='flex-1'>
@@ -63,6 +71,11 @@ export default function TestPage() {
       >
         <TaskHeaderClient onTaskParamAction={setTask} />
       </Suspense>
+      <div className='container mx-auto max-w-5xl px-6 py-4'>
+        <p className='text-base mb-2'>
+          バグがあると思う行を全て選択したら、下の「実験を終了する」ボタンを押してください。
+        </p>
+      </div>
       <PythonCodeViewer />
       <div className='container mx-auto max-w-5xl px-6 pb-12'>
         <div className='flex flex-col items-center gap-4'>
