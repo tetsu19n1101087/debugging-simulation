@@ -155,31 +155,35 @@ export function PythonSyntaxHighlighter({
             isSelected ? 'bg-primary/20' : ''
           }`}
         >
-          {onLineSelect && sectionId && showCheckboxes && (
-            <button
-              onClick={() => onLineSelect(sectionId, lineIndex)}
-              className={`shrink-0 w-6 h-6 mr-2 rounded border-2 transition-all ${
-                isSelected
-                  ? 'bg-primary border-primary'
-                  : 'border-muted-foreground/30 hover:border-primary/50'
-              } flex items-center justify-center`}
-              aria-label={`行 ${lineIndex + 1} を選択`}
-            >
-              {isSelected && (
-                <svg
-                  className='w-4 h-4 text-primary-foreground'
-                  fill='none'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path d='M5 13l4 4L19 7' />
-                </svg>
-              )}
-            </button>
-          )}
+          {onLineSelect && sectionId ? (
+            showCheckboxes ? (
+              <button
+                onClick={() => onLineSelect(sectionId, lineIndex)}
+                className={`shrink-0 w-6 h-6 mr-2 rounded border-2 transition-all ${
+                  isSelected
+                    ? 'bg-primary border-primary'
+                    : 'border-muted-foreground/30 hover:border-primary/50'
+                } flex items-center justify-center`}
+                aria-label={`行 ${lineIndex + 1} を選択`}
+              >
+                {isSelected && (
+                  <svg
+                    className='w-4 h-4 text-primary-foreground'
+                    fill='none'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path d='M5 13l4 4L19 7' />
+                  </svg>
+                )}
+              </button>
+            ) : (
+              <div className='shrink-0 w-6 h-6 mr-2' />
+            )
+          ) : null}
           <div className='leading-relaxed whitespace-pre flex-1'>
             {tokens.length > 0 ? (
               tokens

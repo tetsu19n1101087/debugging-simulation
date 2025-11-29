@@ -121,7 +121,7 @@ export function TrainingCodeViewer() {
                     selectedLines={selectedLines}
                     showCheckboxes={false}
                   />
-                  <div className='ml-4 mt-2'>
+                  <div className='mt-2'>
                     <PythonSyntaxHighlighter
                       code={func.body.join('\n')}
                       sectionId={`${func.name}`}
@@ -178,7 +178,7 @@ export function TrainingCodeViewer() {
                           />
                         </AccordionTrigger>
                         <AccordionContent className='px-3 pb-2'>
-                          <div className='ml-4'>
+                          <div className=''>
                             <PythonSyntaxHighlighter
                               code={method.body.join('\n')}
                               sectionId={`${cls.name}.${method.name}`}
@@ -215,7 +215,7 @@ export function TrainingCodeViewer() {
                         />
                       </AccordionTrigger>
                       <AccordionContent className='px-3 pb-2'>
-                        <div className='ml-4'>
+                        <div className=''>
                           <PythonSyntaxHighlighter
                             code={func.body.join('\n')}
                             sectionId={`${func.name}`}

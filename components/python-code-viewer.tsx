@@ -198,7 +198,7 @@ export function PythonCodeViewer() {
                   />
                   {(cls as any).classVars &&
                     (cls as any).classVars.length > 0 && (
-                      <div className='ml-4 mt-2'>
+                      <div className='mt-2'>
                         {(cls as any).classVars.map((v: any, idx: number) => (
                           <PythonSyntaxHighlighter
                             key={v.id ?? idx}
@@ -212,7 +212,7 @@ export function PythonCodeViewer() {
                       </div>
                     )}
                   {cls.methods.map((method) => (
-                    <div key={method.id} className='ml-4 mb-4'>
+                    <div key={method.id} className='mb-4'>
                       <PythonSyntaxHighlighter
                         code={method.signature}
                         sectionId={`${cls.name}.${method.name}-signature`}
@@ -220,7 +220,7 @@ export function PythonCodeViewer() {
                         selectedLines={selectedLines}
                         showCheckboxes={false}
                       />
-                      <div className='ml-4 mt-2'>
+                      <div className='mt-2'>
                         <PythonSyntaxHighlighter
                           code={method.body.join('\n')}
                           sectionId={`${cls.name}.${method.name}`}
@@ -242,7 +242,7 @@ export function PythonCodeViewer() {
                     selectedLines={selectedLines}
                     showCheckboxes={false}
                   />
-                  <div className='ml-4 mt-2'>
+                  <div className='mt-2'>
                     <PythonSyntaxHighlighter
                       code={func.body.join('\n')}
                       sectionId={`${func.name}`}
@@ -278,7 +278,7 @@ export function PythonCodeViewer() {
                   />
                   {(cls as any).classVars &&
                     (cls as any).classVars.length > 0 && (
-                      <div className='ml-4 mt-2'>
+                      <div className='ml-4 mt-2 px-3'>
                         {(cls as any).classVars.map((v: any, idx: number) => (
                           <PythonSyntaxHighlighter
                             key={v.id ?? idx}
@@ -315,7 +315,7 @@ export function PythonCodeViewer() {
                           />
                         </AccordionTrigger>
                         <AccordionContent className='px-3 pb-2'>
-                          <div className='ml-4'>
+                          <div>
                             <PythonSyntaxHighlighter
                               code={method.body.join('\n')}
                               sectionId={`${cls.name}.${method.name}`}
