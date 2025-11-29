@@ -21,7 +21,7 @@ export default function TrainingPage() {
           </li>
         </ol>
         <p>
-          例として、fizzbuzz.py の fizzbuzz
+          例として、以下の Python ソースコードにおいて、fizzbuzz.py の fizzbuzz
           メソッドにはバグがあります。チェックボックスを使ってバグのある行を選択してください。
         </p>
       </div>

@@ -13,7 +13,7 @@ export const pythonFiles = [
         name: 'main',
         signature: '# メインの実行コード',
         body: [
-          'library = Library()',
+          'library = Library(max_borrowed_books=3)',
           ' ',
           '# 本の追加',
           'book1 = Book("The Hitchhiker\'s Guide to the Galaxy", "Douglas Adams", "978-0345391803")',
@@ -98,20 +98,45 @@ export const pythonFiles = [
         id: 'book-class-1',
         name: 'Book',
         signature: 'class Book:',
+        classVars: [
+          {
+            id: 'book-classvar-1',
+            name: '_isbn_registry',
+            signature: '_isbn_registry = set()',
+            body: [],
+          },
+        ],
         methods: [
           {
             id: 'book-method-1',
             name: '__init__',
             signature: 'def __init__(self, title, author, isbn):',
             body: [
+              '    if isbn in Book._isbn_registry:',
+              '        raise ValueError(f"ISBN \'{isbn}\' は既に登録されています")',
+              '',
               '    self.title = title',
               '    self.author = author',
               '    self.isbn = isbn',
               '    self.is_borrowed = False',
+              '',
+              '    normalized = isbn.replace("-", "")',
+              '    Book._isbn_registry.add(normalized)',
             ],
           },
           {
             id: 'book-method-2',
+            name: '__del__',
+            signature: 'def __del__(self):',
+            body: [
+              '    try:',
+              '        Book._isbn_registry.discard(self.isbn)',
+              '    except Exception:',
+              '        pass',
+            ],
+          },
+          {
+            id: 'book-method-3',
             name: '__str__',
             signature: 'def __str__(self):',
             body: [
@@ -167,11 +192,11 @@ export const pythonFiles = [
           {
             id: 'library-method-1',
             name: '__init__',
-            signature: 'def __init__(self):',
+            signature: 'def __init__(self, max_borrowed_books = 3):',
             body: [
               '    self.books = {}',
               '    self.members = {}',
-              '    self.MAX_BORROWED_BOOKS = 3',
+              '    self.MAX_BORROWED_BOOKS = max_borrowed_books',
             ],
           },
           {

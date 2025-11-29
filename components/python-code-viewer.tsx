@@ -196,6 +196,21 @@ export function PythonCodeViewer() {
                     selectedLines={selectedLines}
                     showCheckboxes={false}
                   />
+                  {(cls as any).classVars &&
+                    (cls as any).classVars.length > 0 && (
+                      <div className='ml-4 mt-2'>
+                        {(cls as any).classVars.map((v: any, idx: number) => (
+                          <PythonSyntaxHighlighter
+                            key={v.id ?? idx}
+                            code={v.signature}
+                            sectionId={`${cls.name}-classvar-${idx}`}
+                            onLineSelect={handleLineSelect}
+                            selectedLines={selectedLines}
+                            showCheckboxes={true}
+                          />
+                        ))}
+                      </div>
+                    )}
                   {cls.methods.map((method) => (
                     <div key={method.id} className='ml-4 mb-4'>
                       <PythonSyntaxHighlighter
@@ -261,6 +276,21 @@ export function PythonCodeViewer() {
                     selectedLines={selectedLines}
                     showCheckboxes={false}
                   />
+                  {(cls as any).classVars &&
+                    (cls as any).classVars.length > 0 && (
+                      <div className='ml-4 mt-2'>
+                        {(cls as any).classVars.map((v: any, idx: number) => (
+                          <PythonSyntaxHighlighter
+                            key={v.id ?? idx}
+                            code={v.signature}
+                            sectionId={`${cls.name}-classvar-${idx}`}
+                            onLineSelect={handleLineSelect}
+                            selectedLines={selectedLines}
+                            showCheckboxes={true}
+                          />
+                        ))}
+                      </div>
+                    )}
 
                   <Accordion
                     type='single'
