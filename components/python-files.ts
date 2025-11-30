@@ -358,7 +358,7 @@ export const trainingPythonFiles = [
       {
         id: 'training-main-function-1',
         name: 'main',
-        signature: '# メインの実行コード (FizzBuzz)',
+        signature: '',
         body: ['for i in range(1, 16):', '    print(fizzbuzz(i))'],
       },
     ],

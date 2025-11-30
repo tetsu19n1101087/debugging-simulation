@@ -67,7 +67,7 @@ export function TrainingCodeViewer() {
 
         <div className='p-6'>
           {currentFile.imports.length > 0 && (
-            <div className='mb-6'>
+            <div className=''>
               <PythonSyntaxHighlighter
                 code={currentFile.imports.join('\n')}
                 sectionId={`${currentFile.fileName}-imports`}
@@ -75,7 +75,6 @@ export function TrainingCodeViewer() {
                 selectedLines={selectedLines}
                 showCheckboxes={false}
               />
-              <div className='mt-4' />
             </div>
           )}
 
@@ -121,7 +120,7 @@ export function TrainingCodeViewer() {
                     selectedLines={selectedLines}
                     showCheckboxes={false}
                   />
-                  <div className='mt-2'>
+                  <div className=''>
                     <PythonSyntaxHighlighter
                       code={func.body.join('\n')}
                       sectionId={`${func.name}`}
