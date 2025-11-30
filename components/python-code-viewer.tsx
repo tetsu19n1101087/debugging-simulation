@@ -172,7 +172,7 @@ export function PythonCodeViewer() {
 
         <div className='p-6'>
           {currentFile.imports.length > 0 && (
-            <div className='mb-6'>
+            <div className=''>
               <PythonSyntaxHighlighter
                 code={currentFile.imports.join('\n')}
                 sectionId={`${currentFile.fileName}-imports`}
@@ -180,7 +180,6 @@ export function PythonCodeViewer() {
                 selectedLines={selectedLines}
                 showCheckboxes={false}
               />
-              <div className='mt-4' />
             </div>
           )}
 

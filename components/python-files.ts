@@ -11,7 +11,7 @@ export const pythonFiles = [
       {
         id: 'main-function-1',
         name: 'main',
-        signature: '# メインの実行コード',
+        signature: '',
         body: [
           'library = Library(max_borrowed_books=3)',
           ' ',
