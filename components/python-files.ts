@@ -104,7 +104,7 @@ export const pythonFiles = [
   },
   {
     fileName: 'member.py',
-    imports: [],
+    imports: ['import random', 'import string', ''],
     classes: [
       {
         id: 'member-class-1',
