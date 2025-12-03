@@ -24,7 +24,7 @@ export function PythonSyntaxHighlighter({
       const tokens: JSX.Element[] = [];
       let currentIndex = 0;
 
-      const lineId = sectionId ? `${sectionId}-line-${lineIndex}` : '';
+      const lineId = sectionId ? `${sectionId}-line-${lineIndex + 1}` : '';
       const isSelected = selectedLines.has(lineId);
 
       const keywords =
@@ -158,7 +158,7 @@ export function PythonSyntaxHighlighter({
           {onLineSelect && sectionId ? (
             showCheckboxes ? (
               <button
-                onClick={() => onLineSelect(sectionId, lineIndex)}
+                onClick={() => onLineSelect(sectionId, lineIndex + 1)}
                 className={`shrink-0 w-6 h-6 mr-2 rounded border-2 transition-all ${
                   isSelected
                     ? 'bg-primary border-primary'
