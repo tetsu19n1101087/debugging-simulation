@@ -10,6 +10,7 @@ class Member:
 
     @staticmethod
     def _random_id(length=10):
+        # ランダムなIDの生成
         chars = string.ascii_letters + string.digits
         return "".join(random.choice(chars) for _ in range(length))
 
