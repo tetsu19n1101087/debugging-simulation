@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { logs, selectedRows, task } = body || {};
+    const { logs, selectedRows, task, sessionId } = body || {};
 
     if (!Array.isArray(logs) || logs.length === 0) {
       return NextResponse.json(
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     }
 
     const rows = logs.map((l: IncomingLog) => ({
-      session_id: l.sessionId,
+      session_id: sessionId ?? l.sessionId,
       event_type: l.type,
       location: l.location,
       occurred_at: new Date(
@@ -46,9 +46,6 @@ export async function POST(req: Request) {
     // If selectedRows were sent, store them in the separate selected_rows table keyed by session_id
     let selectedSaved = false;
     try {
-      const sessionId =
-        logs.find((l: IncomingLog) => l.sessionId)?.sessionId ?? null;
-
       if (Array.isArray(selectedRows) && selectedRows.length > 0 && sessionId) {
         const { error: upsertError } = await supabase
           .from('selected_rows')

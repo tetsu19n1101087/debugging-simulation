@@ -22,7 +22,13 @@ export function PythonCodeViewer() {
   const [activeTab, setActiveTab] = useState(0);
   const [openItem, setOpenItem] = useState<string>('');
   const [clickLogs, setClickLogs] = useState<ClickLog[]>([]);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('experimentSessionId');
+    } catch {
+      return null;
+    }
+  });
   const [selectedLines, setSelectedLines] = useState<Set<string>>(new Set());
 
   const currentFile = pythonFiles[activeTab];
@@ -52,10 +58,10 @@ export function PythonCodeViewer() {
     }
 
     // If there are no saved logs, add an initial log for the default tab (index 0)
-    if (!parsedLogs || parsedLogs.length === 0) {
-      // addClickLog is safe to call here because effects run after render
-      addClickLog('file', pythonFiles[0].fileName);
-    }
+    // if (!parsedLogs || parsedLogs.length === 0) {
+    //   // addClickLog is safe to call here because effects run after render
+    //   addClickLog('file', pythonFiles[0].fileName);
+    // }
   }, []);
 
   const addClickLog = (type: string, location: string) => {
@@ -83,17 +89,26 @@ export function PythonCodeViewer() {
   };
 
   const ensureSessionId = () => {
-    if (!sessionId) {
-      const sid = generateSessionId();
-      try {
-        localStorage.setItem('experimentSessionId', sid);
-      } catch {
-        // ignore
+    try {
+      const saved = localStorage.getItem('experimentSessionId');
+      if (saved) {
+        if (sessionId !== saved) setSessionId(saved);
+        return saved;
       }
-      setSessionId(sid);
-      return sid;
+    } catch {
+      // ignore
     }
-    return sessionId;
+
+    if (sessionId) return sessionId;
+
+    const sid = generateSessionId();
+    try {
+      localStorage.setItem('experimentSessionId', sid);
+    } catch {
+      // ignore
+    }
+    setSessionId(sid);
+    return sid;
   };
 
   const handleAccordionChange = (value: string) => {

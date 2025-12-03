@@ -18,13 +18,14 @@ export default function TestPage() {
     try {
       const logsRaw = localStorage.getItem('experimentClickLogs');
       const linesRaw = localStorage.getItem('experimentSelectedLines');
+      const sessionId = localStorage.getItem('experimentSessionId');
       const logs = logsRaw ? JSON.parse(logsRaw) : [];
       const selectedRows = linesRaw ? JSON.parse(linesRaw) : [];
 
       const res = await fetch('/api/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ logs, selectedRows, task }),
+        body: JSON.stringify({ logs, selectedRows, task, sessionId }),
       });
       const json = await res.json();
       if (json.success) {
