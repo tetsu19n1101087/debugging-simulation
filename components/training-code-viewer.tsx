@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -36,6 +36,22 @@ export function TrainingCodeViewer() {
       return newSet;
     });
   };
+
+  // Notify parent pages/components about selection changes (client-only)
+  useEffect(() => {
+    try {
+      window.dispatchEvent(
+        new CustomEvent('trainingSelectedLinesChanged', {
+          detail: {
+            count: selectedLines.size,
+            hasBugLine: selectedLines.has('fizzbuzz-line-5'),
+          },
+        })
+      );
+    } catch {
+      // ignore
+    }
+  }, [selectedLines]);
 
   return (
     <div className='container mx-auto p-6 max-w-5xl'>

@@ -1,10 +1,29 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TrainingCodeViewer } from '@/components/training-code-viewer';
 import { Button } from '@/components/ui/button';
 
 export default function TrainingPage() {
+  const [hasSelectedBug, setHasSelectedBug] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      const has = !!e?.detail?.hasBugLine;
+      setHasSelectedBug(has);
+    };
+    window.addEventListener(
+      'trainingSelectedLinesChanged',
+      handler as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        'trainingSelectedLinesChanged',
+        handler as EventListener
+      );
+  }, []);
+
   return (
     <main className='min-h-screen bg-background'>
       <div className='container mx-auto max-w-5xl px-6 pt-8'>
@@ -34,9 +53,15 @@ export default function TrainingPage() {
       <div className='container mx-auto max-w-5xl px-6 pb-12'>
         <div className='flex flex-col items-center gap-4'>
           <div className='flex justify-center'>
-            <Button asChild size='lg' className='text-lg px-8 py-6'>
-              <Link href='/task-select'>トレーニングを終了する</Link>
-            </Button>
+            {hasSelectedBug ? (
+              <Button asChild size='lg' className='text-lg px-8 py-6'>
+                <Link href='/task-select'>トレーニングを終了する</Link>
+              </Button>
+            ) : (
+              <Button size='lg' className='text-lg px-8 py-6' disabled>
+                トレーニングを終了する
+              </Button>
+            )}
           </div>
         </div>
       </div>

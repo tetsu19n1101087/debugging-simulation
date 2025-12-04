@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PythonCodeViewer } from '@/components/python-code-viewer';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ export default function TestPage() {
   const [task, setTask] = useState<string>('default');
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [selectedCount, setSelectedCount] = useState<number>(0);
 
   const handleEnd = async () => {
     setIsSending(true);
@@ -43,6 +44,31 @@ export default function TestPage() {
       setIsSending(false);
     }
   };
+
+  useEffect(() => {
+    // Read initial selected lines from localStorage on mount (client-only).
+    try {
+      const linesRaw = localStorage.getItem('experimentSelectedLines');
+      const arr = linesRaw ? JSON.parse(linesRaw) : [];
+      if (Array.isArray(arr)) setSelectedCount(arr.length);
+    } catch {
+      // ignore
+    }
+
+    const handler = (e: any) => {
+      const count = e?.detail?.count ?? 0;
+      setSelectedCount(Number(count));
+    };
+    window.addEventListener(
+      'experimentSelectedLinesChanged',
+      handler as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        'experimentSelectedLinesChanged',
+        handler as EventListener
+      );
+  }, []);
 
   return (
     <main className='min-h-screen bg-background'>
@@ -85,7 +111,7 @@ export default function TestPage() {
               size='lg'
               className='text-lg px-8 py-6'
               onClick={handleEnd}
-              disabled={isSending}
+              disabled={isSending || selectedCount === 0}
             >
               {isSending ? '送信中…' : '実験を終了する'}
             </Button>

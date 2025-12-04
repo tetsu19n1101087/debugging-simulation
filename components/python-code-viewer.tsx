@@ -22,13 +22,7 @@ export function PythonCodeViewer() {
   const [activeTab, setActiveTab] = useState(0);
   const [openItem, setOpenItem] = useState<string>('');
   const [clickLogs, setClickLogs] = useState<ClickLog[]>([]);
-  const [sessionId, setSessionId] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem('experimentSessionId');
-    } catch {
-      return null;
-    }
-  });
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [selectedLines, setSelectedLines] = useState<Set<string>>(new Set());
 
   const currentFile = pythonFiles[activeTab];
@@ -149,11 +143,28 @@ export function PythonCodeViewer() {
   }, [clickLogs]);
 
   useEffect(() => {
-    if (selectedLines.size > 0) {
-      localStorage.setItem(
-        'experimentSelectedLines',
-        JSON.stringify(Array.from(selectedLines))
+    try {
+      if (selectedLines.size > 0) {
+        localStorage.setItem(
+          'experimentSelectedLines',
+          JSON.stringify(Array.from(selectedLines))
+        );
+      } else {
+        localStorage.removeItem('experimentSelectedLines');
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+
+    // Dispatch an event so parent pages/components can react to selection count changes
+    try {
+      window.dispatchEvent(
+        new CustomEvent('experimentSelectedLinesChanged', {
+          detail: { count: selectedLines.size },
+        })
       );
+    } catch {
+      // ignore
     }
   }, [selectedLines]);
 
