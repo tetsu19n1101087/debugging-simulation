@@ -186,5 +186,105 @@
     "Library.return_book",
     "Member",
     "member.borrowed_books.remove(book)"
+  ],
+  [
+    "Book",
+    "main",
+    "main.py"
+  ],
+  [
+    "Member",
+    "main",
+    "main.py"
+  ],
+  [
+    "Library",
+    "main",
+    "main.py"
+  ],
+  [
+    "Book.__init__",
+    "Book.__init__",
+    "def __init__(self, title, author, isbn):"
+  ],
+  [
+    "Member.__init__",
+    "Member.__init__",
+    "def __init__(self, name):"
+  ],
+  [
+    "Library.remove_book",
+    "Library.remove_book",
+    "def remove_book(self, isbns):"
+  ],
+  [
+    "Book.__str__",
+    "Book.__str__",
+    "def __str__(self):"
+  ],
+  [
+    "Library",
+    "Library",
+    "class Library:"
+  ],
+  [
+    "Library.add_member",
+    "Library.add_member",
+    "def add_member(self, member):"
+  ],
+  [
+    "Library.return_book",
+    "Library.return_book",
+    "def return_book(self, member_id, isbns):"
+  ],
+  [
+    "Library.borrow_book",
+    "Library.borrow_book",
+    "def borrow_book(self, member_id, isbns):"
+  ],
+  [
+    "Library.__init__",
+    "Library.__init__",
+    "def __init__(self, max_borrowed_books=3):"
+  ],
+  [
+    "Library.add_book",
+    "Library.add_book",
+    "def add_book(self, books):"
+  ],
+  [
+    "Library.remove_member",
+    "Library.remove_member",
+    "def remove_member(self, member_id):"
+  ],
+  [
+    "main",
+    "main",
+    "main.py"
+  ],
+  [
+    "Book.__del__",
+    "Book.__del__",
+    "def __del__(self):"
+  ],
+  [
+    "Book",
+    "Book",
+    "class Book:"
+  ],
+  [
+    "Member._random_id",
+    "Member._random_id",
+    "def _random_id(length=10):"
+  ],
+  [
+    "Member",
+    "Member",
+    "class Member:"
+  ],
+  [
+    "Member.__str__",
+    "Member.__str__",
+    "def __str__(self):"
   ]
 ]

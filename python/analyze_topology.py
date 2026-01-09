@@ -95,7 +95,27 @@ def create_detailed_matrix():
         ("Library.return_book", "Book", "book.is_borrowed = False"),
         ("Library.return_book", "Member", "member = self.members[member_id]"),
         ("Library.return_book", "Member", "member.borrowed_books.remove(book)"),
+        # Edges to main
+        ("Book", "main", "main.py"),
+        ("Member", "main", "main.py"),
+        ("Library", "main", "main.py"),
     ]
+
+    # Create a mapping of method nodes to their definition labels
+    method_labels = {}
+    for source, target, label in edges:
+        if isinstance(label, str) and label.startswith("def "):
+            method_labels[target] = label
+    
+    # Add self-loops for all nodes with appropriate labels
+    for node in nodes:
+        if node == "main":
+            label = "main.py"
+        elif "." in node:  # It's a method
+            label = method_labels.get(node, f"def {node}():")
+        else:  # It's a class
+            label = f"class {node}:"
+        edges.append((node, node, label))
 
     sorted_nodes = sorted(nodes)
     size = len(sorted_nodes)
