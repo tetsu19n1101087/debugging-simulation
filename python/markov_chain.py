@@ -96,5 +96,11 @@ if __name__ == "__main__":
     compute_stationary_distribution(
         "topology_matrix_exceed.csv", "data/stationary_distribution_exceed.csv", replacement_map
     )
+    compute_stationary_distribution(
+        "topology_matrix_pattern_weighted_duplicate.csv", "data/stationary_distribution_pattern_weighted_duplicate.csv", replacement_map
+    )
+    compute_stationary_distribution(
+        "topology_matrix_pattern_weighted_exceed.csv", "data/stationary_distribution_pattern_weighted_exceed.csv", replacement_map
+    )
 
     print("全ての定常分布計算が完了しました。")
