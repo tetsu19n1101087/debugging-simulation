@@ -236,3 +236,15 @@ print(f"総チャンク数: {sum(chunk_counts.values())}")
 print(f"\nチャンク数の分布:")
 chunk_stats = pd.Series(chunk_counts)
 print(chunk_stats.describe())
+
+# チャンク数をCSVに保存
+chunk_counts_df = pd.DataFrame(list(chunk_counts.items()), columns=["node", "chunk_count"])
+
+# 正規化（合計が1になるように）
+total_chunks = chunk_counts_df["chunk_count"].sum()
+chunk_counts_df["normalized_chunk_count"] = chunk_counts_df["chunk_count"] / total_chunks
+
+chunk_output_path = "node_chunk_counts.csv"
+chunk_counts_df.to_csv(chunk_output_path, index=False)
+print(f"\nチャンク数を保存完了: {chunk_output_path}")
+print(f"正規化されたチャンク数の合計: {chunk_counts_df['normalized_chunk_count'].sum()}")

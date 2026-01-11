@@ -1,0 +1,12 @@
+task,model,condition,jsd
+duplicate,stationary_distribution_duplicate,all_data,0.20213118950415446
+exceed,stationary_distribution_exceed,all_data,0.2378227330319862
+duplicate,topology,all_data,0.2742337435830352
+exceed,topology,all_data,0.35139249509187404
+duplicate,pattern_weighted,all_data,0.25375079124229794
+duplicate,chunk_weighted,all_data,0.0988658796830449
+exceed,chunk_weighted,all_data,0.21653007326536347
+duplicate,stationary_distribution_duplicate,correct_true,0.21973561777218853
+duplicate,stationary_distribution_duplicate,correct_false,0.18081080845259268
+exceed,stationary_distribution_exceed,correct_true,0.3621022642254947
+exceed,stationary_distribution_exceed,correct_false,0.18479748476670382

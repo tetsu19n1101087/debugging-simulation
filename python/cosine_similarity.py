@@ -52,7 +52,7 @@ def tokenize_with_operator_and_split(code):
 def process_bug_report(bug_report, edge_labels, edge_names, sorted_nodes, edges_for_matrix, output_filename):
     """
     バグレポートに対してコサイン類似度を計算し、トポロジー行列を生成する
-    
+
     Args:
         bug_report: バグレポートのテキスト
         edge_labels: エッジラベルのリスト
@@ -60,6 +60,9 @@ def process_bug_report(bug_report, edge_labels, edge_names, sorted_nodes, edges_
         sorted_nodes: ソート済みノードのリスト
         edges_for_matrix: トポロジー構築用のエッジリスト
         output_filename: 出力ファイル名
+
+    Returns:
+        dict: ノード名とコサイン類似度のマッピング
     """
     # bug_report を最初に追加
     edge_labels_with_bug = [bug_report] + edge_labels
@@ -153,6 +156,54 @@ def process_bug_report(bug_report, edge_labels, edge_names, sorted_nodes, edges_
     topo_matrix.to_csv(output_filename, encoding="utf-8")
     print(f"JSONからトポロジーを構築し、類似度を反映しました: {output_filename}")
 
+    # ===== ノードごとのコサイン類似度を計算 =====
+    # 各ノードに関連するエッジラベルを集約
+    node_labels_dict = {}
+    for source, target, label in edges_for_matrix:
+        # source ノードにラベルを追加
+        if source not in node_labels_dict:
+            node_labels_dict[source] = []
+        if isinstance(label, list):
+            node_labels_dict[source].extend(label)
+        else:
+            node_labels_dict[source].append(label)
+
+        # target ノードにラベルを追加
+        if target not in node_labels_dict:
+            node_labels_dict[target] = []
+        if isinstance(label, list):
+            node_labels_dict[target].extend(label)
+        else:
+            node_labels_dict[target].append(label)
+
+    # 各ノードの集約テキストとバグレポートの類似度を計算
+    node_texts = []
+    node_names = []
+    for node in sorted_nodes:
+        if node in node_labels_dict and node_labels_dict[node]:
+            # ノードに関連するラベルを結合
+            combined_text = " ".join(node_labels_dict[node])
+            node_texts.append(combined_text)
+        else:
+            # ラベルがない場合は空文字
+            node_texts.append("")
+        node_names.append(node)
+
+    # バグレポートとノードテキストを結合してベクトル化
+    all_texts = [bug_report] + node_texts
+    vectorizer_nodes = TfidfVectorizer(analyzer=tokenize_with_operator_and_split)
+    tfidf_matrix_nodes = vectorizer_nodes.fit_transform(all_texts)
+
+    # コサイン類似度を計算
+    similarity_matrix_nodes = cosine_similarity(tfidf_matrix_nodes)
+
+    # バグレポート（最初の行）と各ノードの類似度を抽出
+    node_similarities = {}
+    for i, node_name in enumerate(node_names):
+        node_similarities[node_name] = similarity_matrix_nodes[0][i + 1]
+
+    return node_similarities
+
 
 # topology_edges.json を読み込み
 with open("topology_edges.json", "r", encoding="utf-8") as f:
@@ -183,7 +234,38 @@ with open("topology_edges.json", "r", encoding="utf-8") as f_edges:
     edges_for_matrix = json.load(f_edges)
 
 # 両方のバグレポートを処理
-process_bug_report(bug_report_duplicate, edge_labels, edge_names, sorted_nodes, edges_for_matrix, "topology_matrix_duplicate.csv")
-process_bug_report(bug_report_exceed, edge_labels, edge_names, sorted_nodes, edges_for_matrix, "topology_matrix_exceed.csv")
+node_similarities_duplicate = process_bug_report(
+    bug_report_duplicate, edge_labels, edge_names, sorted_nodes, edges_for_matrix, "topology_matrix_duplicate.csv"
+)
+node_similarities_exceed = process_bug_report(
+    bug_report_exceed, edge_labels, edge_names, sorted_nodes, edges_for_matrix, "topology_matrix_exceed.csv"
+)
+
+# ノードごとのコサイン類似度を1つのCSVにまとめる
+node_similarity_df = pd.DataFrame(
+    {
+        "Node": sorted_nodes,
+        "Duplicate_Similarity": [node_similarities_duplicate[node] for node in sorted_nodes],
+        "Exceed_Similarity": [node_similarities_exceed[node] for node in sorted_nodes],
+    }
+)
+
+# 各列を正規化（合計が1になるように）
+duplicate_sum = node_similarity_df["Duplicate_Similarity"].sum()
+exceed_sum = node_similarity_df["Exceed_Similarity"].sum()
+
+if duplicate_sum > 0:
+    node_similarity_df["Duplicate_Similarity"] = node_similarity_df["Duplicate_Similarity"] / duplicate_sum
+if exceed_sum > 0:
+    node_similarity_df["Exceed_Similarity"] = node_similarity_df["Exceed_Similarity"] / exceed_sum
+
+print(
+    f"\n正規化後の合計: Duplicate={node_similarity_df['Duplicate_Similarity'].sum():.6f}, Exceed={node_similarity_df['Exceed_Similarity'].sum():.6f}"
+)
+
+# CSVに保存
+output_node_similarity_file = "node_similarity.csv"
+node_similarity_df.to_csv(output_node_similarity_file, index=False, encoding="utf-8")
+print(f"ノードごとのコサイン類似度を保存しました: {output_node_similarity_file}")
 
 print("\n=== すべての処理が完了しました ===")
