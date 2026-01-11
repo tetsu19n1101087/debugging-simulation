@@ -5,11 +5,11 @@ import numpy as np
 def google_matrix(P, alpha=0.85):
     """
     Google行列を計算（PageRankアルゴリズム用）
-    
+
     Args:
         P: 遷移確率行列
         alpha: ダンピングファクター（デフォルト: 0.85）
-    
+
     Returns:
         Google行列
     """
@@ -60,16 +60,13 @@ def compute_stationary_distribution(matrix_csv: str, output_csv: str, replacemen
     print(f"[{matrix_csv}] 一致するか:", match, "\n")
 
     if not match:
-        raise RuntimeError(
-            f"定常分布の検証に失敗しました（np.allcloseで不一致）。matrix={matrix_csv}"
-        )
+        raise RuntimeError(f"定常分布の検証に失敗しました（np.allcloseで不一致）。matrix={matrix_csv}")
 
     # 結果の整形と保存
     indices = sorted_indices(stationary_dist)
-    stationary_df = pd.DataFrame({
-        "node": [df_topology.columns[i] for i in indices],
-        "prob": stationary_dist[indices].round(3)
-    })
+    stationary_df = pd.DataFrame(
+        {"node": [df_topology.columns[i] for i in indices], "prob": stationary_dist[indices].round(3)}
+    )
 
     # クラス名をファイル名に置換
     stationary_df["node"] = stationary_df["node"].replace(replacement_map)
@@ -87,9 +84,7 @@ if __name__ == "__main__":
         "main": "main.py",
     }
 
-    compute_stationary_distribution(
-        "topology_matrix.csv", "data/stationary_distribution_topology.csv", replacement_map
-    )
+    compute_stationary_distribution("topology_matrix.csv", "data/stationary_distribution_topology.csv", replacement_map)
     compute_stationary_distribution(
         "topology_matrix_duplicate.csv", "data/stationary_distribution_duplicate.csv", replacement_map
     )
@@ -97,10 +92,17 @@ if __name__ == "__main__":
         "topology_matrix_exceed.csv", "data/stationary_distribution_exceed.csv", replacement_map
     )
     compute_stationary_distribution(
-        "topology_matrix_pattern_weighted_duplicate.csv", "data/stationary_distribution_pattern_weighted_duplicate.csv", replacement_map
+        "topology_matrix_pattern_weighted_duplicate.csv",
+        "data/stationary_distribution_pattern_weighted_duplicate.csv",
+        replacement_map,
     )
     compute_stationary_distribution(
-        "topology_matrix_pattern_weighted_exceed.csv", "data/stationary_distribution_pattern_weighted_exceed.csv", replacement_map
+        "topology_matrix_pattern_weighted_exceed.csv",
+        "data/stationary_distribution_pattern_weighted_exceed.csv",
+        replacement_map,
+    )
+    compute_stationary_distribution(
+        "topology_matrix_chunk_weighted.csv", "data/stationary_distribution_chunk_weighted.csv", replacement_map
     )
 
     print("全ての定常分布計算が完了しました。")
