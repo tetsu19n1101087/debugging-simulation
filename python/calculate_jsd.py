@@ -121,6 +121,58 @@ def main():
             results.append(["exceed", model_name, "false", jsd_exc_false])
             print(f"mean_prob_exceed_correct_false vs stat_{model_name}: {jsd_exc_false:.6f}")
 
+    # ノードのチャンク数との比較
+    print(f"\n--- node_chunks ---")
+    jsd_chunks_dup_all = calculate_jsd(node_chunks, mean_prob["duplicate"])
+    results.append(["duplicate", "node_chunks", "all", jsd_chunks_dup_all])
+    print(f"node_chunks vs mean_prob_duplicate: {jsd_chunks_dup_all:.6f}")
+
+    jsd_chunks_dup_true = calculate_jsd(node_chunks, mean_prob["dup_true"])
+    results.append(["duplicate", "node_chunks", "true", jsd_chunks_dup_true])
+    print(f"node_chunks vs mean_prob_duplicate_correct_true: {jsd_chunks_dup_true:.6f}")
+
+    jsd_chunks_dup_false = calculate_jsd(node_chunks, mean_prob["dup_false"])
+    results.append(["duplicate", "node_chunks", "false", jsd_chunks_dup_false])
+    print(f"node_chunks vs mean_prob_duplicate_correct_false: {jsd_chunks_dup_false:.6f}")
+
+    jsd_chunks_exc_all = calculate_jsd(node_chunks, mean_prob["exceed"])
+    results.append(["exceed", "node_chunks", "all", jsd_chunks_exc_all])
+    print(f"node_chunks vs mean_prob_exceed: {jsd_chunks_exc_all:.6f}")
+
+    jsd_chunks_exc_true = calculate_jsd(node_chunks, mean_prob["exc_true"])
+    results.append(["exceed", "node_chunks", "true", jsd_chunks_exc_true])
+    print(f"node_chunks vs mean_prob_exceed_correct_true: {jsd_chunks_exc_true:.6f}")
+
+    jsd_chunks_exc_false = calculate_jsd(node_chunks, mean_prob["exc_false"])
+    results.append(["exceed", "node_chunks", "false", jsd_chunks_exc_false])
+    print(f"node_chunks vs mean_prob_exceed_correct_false: {jsd_chunks_exc_false:.6f}")
+
+    # ノードのコサイン類似度との比較（同じタスク同士のみ）
+    print(f"\n--- node_similarity ---")
+    jsd_sim_dup_all = calculate_jsd(node_similarity["duplicate"], mean_prob["duplicate"])
+    results.append(["duplicate", "node_similarity", "all", jsd_sim_dup_all])
+    print(f"node_similarity_duplicate vs mean_prob_duplicate: {jsd_sim_dup_all:.6f}")
+
+    jsd_sim_dup_true = calculate_jsd(node_similarity["duplicate"], mean_prob["dup_true"])
+    results.append(["duplicate", "node_similarity", "true", jsd_sim_dup_true])
+    print(f"node_similarity_duplicate vs mean_prob_duplicate_correct_true: {jsd_sim_dup_true:.6f}")
+
+    jsd_sim_dup_false = calculate_jsd(node_similarity["duplicate"], mean_prob["dup_false"])
+    results.append(["duplicate", "node_similarity", "false", jsd_sim_dup_false])
+    print(f"node_similarity_duplicate vs mean_prob_duplicate_correct_false: {jsd_sim_dup_false:.6f}")
+
+    jsd_sim_exc_all = calculate_jsd(node_similarity["exceed"], mean_prob["exceed"])
+    results.append(["exceed", "node_similarity", "all", jsd_sim_exc_all])
+    print(f"node_similarity_exceed vs mean_prob_exceed: {jsd_sim_exc_all:.6f}")
+
+    jsd_sim_exc_true = calculate_jsd(node_similarity["exceed"], mean_prob["exc_true"])
+    results.append(["exceed", "node_similarity", "true", jsd_sim_exc_true])
+    print(f"node_similarity_exceed vs mean_prob_exceed_correct_true: {jsd_sim_exc_true:.6f}")
+
+    jsd_sim_exc_false = calculate_jsd(node_similarity["exceed"], mean_prob["exc_false"])
+    results.append(["exceed", "node_similarity", "false", jsd_sim_exc_false])
+    print(f"node_similarity_exceed vs mean_prob_exceed_correct_false: {jsd_sim_exc_false:.6f}")
+
     # 結果をCSVに保存
     results_df = pd.DataFrame(results, columns=["task", "model", "condition", "jsd"])
 
@@ -130,8 +182,14 @@ def main():
     # カラムの順序を変更（model を一番左に）
     results_df = results_df[["model", "task", "condition", "jsd"]]
 
-    # モデルの順番を指定（topology→cosine→chunk）
-    model_order = {"topology": 0, "cosine": 1, "chunk": 2}
+    # モデルの順番を指定（topology→cosine→chunk→node_similarity→node_chunks）
+    model_order = {
+        "topology": 0,
+        "cosine": 1,
+        "chunk": 2,
+        "node_similarity": 3,
+        "node_chunks": 4,
+    }
     results_df["model_order"] = results_df["model"].map(model_order)
 
     # conditionの順番を指定（all→true→false）
