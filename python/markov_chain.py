@@ -86,10 +86,10 @@ if __name__ == "__main__":
 
     compute_stationary_distribution("topology_matrix.csv", "data/stationary_distribution_topology.csv", replacement_map)
     compute_stationary_distribution(
-        "topology_matrix_duplicate.csv", "data/stationary_distribution_duplicate.csv", replacement_map
+        "topology_matrix_duplicate.csv", "data/stationary_distribution_cosine_duplicate.csv", replacement_map
     )
     compute_stationary_distribution(
-        "topology_matrix_exceed.csv", "data/stationary_distribution_exceed.csv", replacement_map
+        "topology_matrix_exceed.csv", "data/stationary_distribution_cosine_exceed.csv", replacement_map
     )
     compute_stationary_distribution(
         "topology_matrix_pattern_weighted_duplicate.csv",
