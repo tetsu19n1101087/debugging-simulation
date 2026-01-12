@@ -24,7 +24,6 @@ def load_distributions():
     stat_duplicate = pd.read_csv("data/stationary_distribution_cosine_duplicate.csv", index_col=0)
     stat_exceed = pd.read_csv("data/stationary_distribution_cosine_exceed.csv", index_col=0)
     stat_topology = pd.read_csv("data/stationary_distribution_topology.csv", index_col=0)
-    stat_pattern_dup = pd.read_csv("data/stationary_distribution_pattern_weighted_duplicate.csv", index_col=0)
     stat_chunk = pd.read_csv("data/stationary_distribution_chunk_weighted.csv", index_col=0)
 
     # ノードのチャンク数（正規化）
@@ -43,10 +42,9 @@ def load_distributions():
             "exc_false": mean_prob_exc_false.squeeze(),
         },
         "stat_dist": {
-            "duplicate": stat_duplicate.squeeze(),
-            "exceed": stat_exceed.squeeze(),
+            "cosine_duplicate": stat_duplicate.squeeze(),
+            "cosine_exceed": stat_exceed.squeeze(),
             "topology": stat_topology.squeeze(),
-            "pattern_dup": stat_pattern_dup.squeeze(),
             "chunk": stat_chunk.squeeze(),
         },
         "node_chunks": node_chunks["normalized_chunk_count"],
@@ -95,8 +93,8 @@ def main():
     for model_name, model_dist in stat_dist.items():
         print(f"\n--- {model_name} モデル ---")
 
-        # Duplicateタスク（model が exceed でない場合）
-        if model_name != "exceed":
+        # Duplicateタスク（model が cosine_exceed でない場合）
+        if model_name != "cosine_exceed":
             jsd_dup_all = calculate_jsd(mean_prob["duplicate"], model_dist)
             results.append(["duplicate", model_name, "all", jsd_dup_all])
             print(f"mean_prob_duplicate vs stat_{model_name}: {jsd_dup_all:.6f}")
@@ -109,8 +107,8 @@ def main():
             results.append(["duplicate", model_name, "false", jsd_dup_false])
             print(f"mean_prob_duplicate_correct_false vs stat_{model_name}: {jsd_dup_false:.6f}")
 
-        # Exceedタスク（model が duplicate でない場合）
-        if model_name != "duplicate":
+        # Exceedタスク（model が cosine_duplicate でない場合）
+        if model_name != "cosine_duplicate":
             jsd_exc_all = calculate_jsd(mean_prob["exceed"], model_dist)
             results.append(["exceed", model_name, "all", jsd_exc_all])
             print(f"mean_prob_exceed vs stat_{model_name}: {jsd_exc_all:.6f}")
@@ -125,7 +123,27 @@ def main():
 
     # 結果をCSVに保存
     results_df = pd.DataFrame(results, columns=["task", "model", "condition", "jsd"])
-    output_file = "jsd_results.csv"
+
+    # モデル名を統一（cosine_duplicate と cosine_exceed を cosine に統一）
+    results_df["model"] = results_df["model"].replace(["cosine_duplicate", "cosine_exceed"], "cosine")
+
+    # カラムの順序を変更（model を一番左に）
+    results_df = results_df[["model", "task", "condition", "jsd"]]
+
+    # モデルの順番を指定（topology→cosine→chunk）
+    model_order = {"topology": 0, "cosine": 1, "chunk": 2}
+    results_df["model_order"] = results_df["model"].map(model_order)
+
+    # conditionの順番を指定（all→true→false）
+    condition_order = {"all": 0, "true": 1, "false": 2}
+    results_df["condition_order"] = results_df["condition"].map(condition_order)
+
+    results_df = results_df.sort_values(by=["model_order", "task", "condition_order"]).drop(
+        ["model_order", "condition_order"], axis=1
+    )
+    results_df = results_df.reset_index(drop=True)
+
+    output_file = "data/jsd_results.csv"
     results_df.to_csv(output_file, index=False)
 
     print("\n" + "=" * 70)
