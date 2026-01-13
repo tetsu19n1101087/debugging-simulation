@@ -70,3 +70,5 @@ df5c4117-7c69-426d-b3b9-b76f2738e039,Library.borrow_book-line-4,exceed,false,202
 8cec8455-6613-4479-87c5-7b2cb3ab6fe6,Library.borrow_book-line-16,exceed,true,2025/12/23 11:43:20
 8cec8455-6613-4479-87c5-7b2cb3ab6fe6,Library.borrow_book-line-18,exceed,true,2025/12/23 11:43:20
 8cec8455-6613-4479-87c5-7b2cb3ab6fe6,Library.borrow_book-line-19,exceed,true,2025/12/23 11:43:20
+e0bb1d9d-32da-46b5-92cb-084590425dbe,Book.__init__-line-9,duplicate,true,2026/01/13 14:52:28
+e0bb1d9d-32da-46b5-92cb-084590425dbe,Book.__init__-line-10,duplicate,true,2026/01/13 14:52:28
