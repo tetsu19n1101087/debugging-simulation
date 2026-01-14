@@ -201,6 +201,12 @@ def main():
     )
     results_df = results_df.reset_index(drop=True)
 
+    # jsdを小数点第3位まで四捨五入
+    results_df["jsd"] = results_df["jsd"].round(3)
+
+    # jsdを文字列に変換し、先頭の "0" を削除（".266" 形式にする）
+    results_df["jsd"] = results_df["jsd"].apply(lambda x: f"{x:.3f}".lstrip("0") if x < 1 else f"{x:.3f}")
+
     output_file = "data/jsd_results.csv"
     results_df.to_csv(output_file, index=False)
 
