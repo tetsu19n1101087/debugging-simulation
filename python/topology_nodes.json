@@ -1,19 +1,19 @@
 [
+  "main",
   "Book",
-  "Book.__del__",
   "Book.__init__",
+  "Book.__del__",
   "Book.__str__",
+  "Member",
+  "Member.__init__",
+  "Member._random_id",
+  "Member.__str__",
   "Library",
   "Library.__init__",
   "Library.add_book",
-  "Library.add_member",
-  "Library.borrow_book",
   "Library.remove_book",
+  "Library.add_member",
   "Library.remove_member",
-  "Library.return_book",
-  "Member",
-  "Member.__init__",
-  "Member.__str__",
-  "Member._random_id",
-  "main"
+  "Library.borrow_book",
+  "Library.return_book"
 ]
