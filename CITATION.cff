@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+title: "Web application for debugging behavior experiment"
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Tsunehara
+    given-names: Tetsuro
+date-released: 2025-12-08
+repository-code: "https://github.com/tetsu19n1101087/debugging-simulation"
