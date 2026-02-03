@@ -1,30 +1,45 @@
-# Code editor simulation
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+# デバッグ実験用アプリ
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/tetsu19n1101087s-projects/v0-code-editor-simulation)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/j75RRW6XLjk)
+このリポジトリは、デバッグ実験（デバッグ課題の提示・操作ログの収集）を行うための Web アプリです。Next.js（App Router）をベースに、実験フローに沿った画面遷移と、操作ログの記録を行います。
 
-## Overview
+## 目的
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+- デバッグ課題の提示と実行
+- 参加者の操作ログ（クリック等）の収集
+- 実験結果の分析に必要なデータの整備
 
-## Deployment
+## 主な画面
 
-Your project is live at:
+- **タスク選択**: 実験タスクを選択する画面
+- **トレーニング**: 事前学習用のコンテンツを表示
+- **テスト**: デバッグ課題の実行画面
+- **終了**: 実験終了・確認画面
 
-**[https://vercel.com/tetsu19n1101087s-projects/v0-code-editor-simulation](https://vercel.com/tetsu19n1101087s-projects/v0-code-editor-simulation)**
+## ディレクトリ概要
 
-## Build your app
+- app/: 画面（App Router）と API ルート
+	- app/api/logs/: 操作ログの記録 API
+	- app/task-select/: タスク選択
+	- app/training/: トレーニング
+	- app/test/: テスト
+	- app/end/: 終了
+- components/: UI コンポーネント、コード表示など
+- lib/supabase/: Supabase クライアント関連
+- db/: ログ保存に関する SQL
+- python/: 実験結果の分析スクリプト
 
-Continue building your app on:
+## 動作概要
 
-**[https://v0.app/chat/j75RRW6XLjk](https://v0.app/chat/j75RRW6XLjk)**
+1. 参加者がタスクを選択
+2. トレーニング画面で説明を確認
+3. テスト画面でデバッグ課題に取り組む
+4. 操作ログを API に送信し保存
+5. 終了画面で完了
 
-## How It Works
+## 開発メモ
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+- UI はコンポーネント化して再利用
+- ログ取得は app/api/logs のエンドポイントを使用
+- 分析用スクリプトは python/ 以下で管理
+
