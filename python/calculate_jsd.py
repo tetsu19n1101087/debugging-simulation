@@ -54,11 +54,28 @@ def load_distributions():
         "exceed": pd.read_csv("data/mean_probability_post_main_exceed.csv", index_col=0).squeeze(),
     }
 
+    # 実験データの平均訪問割合（前半/後半）
+    mean_prob_first = {
+        "duplicate": pd.read_csv("data/mean_probability_duplicate_first.csv", index_col=0).squeeze(),
+        "exceed": pd.read_csv("data/mean_probability_exceed_first.csv", index_col=0).squeeze(),
+    }
+    
+    mean_prob_second = {
+        "duplicate": pd.read_csv("data/mean_probability_duplicate_second.csv", index_col=0).squeeze(),
+        "exceed": pd.read_csv("data/mean_probability_exceed_second.csv", index_col=0).squeeze(),
+    }
+
     # モデルの定常分布
     stat_duplicate = pd.read_csv("data/stationary_distribution_cosine_duplicate.csv", index_col=0)
     stat_exceed = pd.read_csv("data/stationary_distribution_cosine_exceed.csv", index_col=0)
     stat_topology = pd.read_csv("data/stationary_distribution_topology.csv", index_col=0)
     stat_chunk = pd.read_csv("data/stationary_distribution_chunk_weighted.csv", index_col=0)
+    stat_cosine_chunk_avg_duplicate = pd.read_csv(
+        "data/stationary_distribution_cosine_chunk_weighted_avg_duplicate.csv", index_col=0
+    )
+    stat_cosine_chunk_avg_exceed = pd.read_csv(
+        "data/stationary_distribution_cosine_chunk_weighted_avg_exceed.csv", index_col=0
+    )
 
     # ノードのチャンク数（正規化）
     node_chunks = pd.read_csv("node_chunk_counts.csv", index_col=0)
@@ -73,12 +90,16 @@ def load_distributions():
             "stay4s": mean_prob_stay4s,
             "cleaned": mean_prob_cleaned,
             "post_main": mean_prob_post_main,
+            "first": mean_prob_first,
+            "second": mean_prob_second,
         },
         "stat_dist": {
             "cosine_duplicate": stat_duplicate.squeeze(),
             "cosine_exceed": stat_exceed.squeeze(),
             "topology": stat_topology.squeeze(),
             "chunk": stat_chunk.squeeze(),
+            "cosine_chunk_avg_duplicate": stat_cosine_chunk_avg_duplicate.squeeze(),
+            "cosine_chunk_avg_exceed": stat_cosine_chunk_avg_exceed.squeeze(),
         },
         "node_chunks": node_chunks["normalized_chunk_count"],
         "node_similarity": {
@@ -129,8 +150,12 @@ def main():
         for model_name, model_dist in stat_dist.items():
             print(f"\n--- {model_name} モデル ---")
 
-            # Duplicateタスク（model が cosine_exceed でない場合）
-            if model_name != "cosine_exceed" and "duplicate" in mean_prob:
+            # Duplicateタスク（モデルがexceed系でない場合）
+            if (
+                model_name
+                not in ["cosine_exceed", "cosine_chunk_avg_exceed"]
+                and "duplicate" in mean_prob
+            ):
                 jsd_dup_all = calculate_jsd(mean_prob["duplicate"], model_dist)
                 results.append([dataset_label, model_name, "duplicate", "all", jsd_dup_all])
                 print(f"mean_prob_duplicate ({dataset_label}) vs stat_{model_name}: {jsd_dup_all:.6f}")
@@ -145,8 +170,12 @@ def main():
                     results.append([dataset_label, model_name, "duplicate", "false", jsd_dup_false])
                     print(f"mean_prob_duplicate_correct_false ({dataset_label}) vs stat_{model_name}: {jsd_dup_false:.6f}")
 
-            # Exceedタスク（model が cosine_duplicate でない場合）
-            if model_name != "cosine_duplicate" and "exceed" in mean_prob:
+            # Exceedタスク（モデルがduplicate系でない場合）
+            if (
+                model_name
+                not in ["cosine_duplicate", "cosine_chunk_avg_duplicate"]
+                and "exceed" in mean_prob
+            ):
                 jsd_exc_all = calculate_jsd(mean_prob["exceed"], model_dist)
                 results.append([dataset_label, model_name, "exceed", "all", jsd_exc_all])
                 print(f"mean_prob_exceed ({dataset_label}) vs stat_{model_name}: {jsd_exc_all:.6f}")
@@ -228,17 +257,21 @@ def main():
     # 結果をCSVに保存
     results_df = pd.DataFrame(results, columns=["dataset", "model", "task", "condition", "jsd"])
 
-    # モデル名を統一（cosine_duplicate と cosine_exceed を cosine に統一）
+    # モデル名を統一（cosine系とcosine_chunk_avg系）
     results_df["model"] = results_df["model"].replace(["cosine_duplicate", "cosine_exceed"], "cosine")
+    results_df["model"] = results_df["model"].replace(
+        ["cosine_chunk_avg_duplicate", "cosine_chunk_avg_exceed"], "cosine_chunk_avg"
+    )
 
     # 並び順を指定
-    dataset_order = {"full": 0, "trimmed": 1, "stay4s": 2, "cleaned": 3, "post_main": 4}
+    dataset_order = {"full": 0, "trimmed": 1, "stay4s": 2, "cleaned": 3, "post_main": 4, "first": 5, "second": 6}
     model_order = {
         "topology": 0,
         "cosine": 1,
         "chunk": 2,
-        "node_similarity": 3,
-        "node_chunks": 4,
+        "cosine_chunk_avg": 3,
+        "node_similarity": 5,
+        "node_chunks": 6,
     }
     condition_order = {"all": 0, "true": 1, "false": 2}
 
